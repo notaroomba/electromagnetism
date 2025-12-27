@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "../particle"
+		},
+		{
+			"path": "../Gravity-Simulation"
+		}
+	],
+	"settings": {}
+}

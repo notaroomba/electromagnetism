@@ -1,0 +1,25 @@
+[package]
+name = "physics-engine"
+description = "A rust backend for my Electromagnetism Simulation!"
+repository = "https://github.com/NotARoomba/electromagnetism"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+wasm-bindgen = { version = "0.2", features = ["serde-serialize"] }
+serde-wasm-bindgen = { version = "0.6.5" }
+nalgebra = "0.34.1"
+getrandom = { features = ["wasm_js"], version = "0.3.4" }
+rand = "0.9.2"
+#debug
+# console_error_panic_hook = { version = "0.1.7" }
+# log = "0.4.17"
+# wasm-logger = "0.2.0"
