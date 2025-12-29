@@ -8,7 +8,6 @@ import { Container } from "pixi.js";
 import SettingsBar from "../components/SettingsBar";
 import PropertyEditor from "../components/PropertyEditor";
 import UniversePropertyEditor from "../components/UniversePropertyEditor";
-import AddItemSidebar from "../components/AddItemSidebar";
 import { memo, useEffect } from "react";
 import {
   SimulationProvider,
@@ -51,7 +50,7 @@ const PixiCanvas = memo(function PixiCanvas({
 });
 
 function SimulationContent() {
-  const { universe, showMoreInfo, fps, isAddItemSidebarOpen, setIsAddItemSidebarOpen } = useSimulation();
+  const { universe, showMoreInfo, fps } = useSimulation();
 
   return (
     <Transitions>
@@ -90,10 +89,6 @@ function SimulationContent() {
       {/* Property Editors */}
       <PropertyEditor />
       <UniversePropertyEditor />
-      <AddItemSidebar
-        isOpen={isAddItemSidebarOpen}
-        onClose={() => setIsAddItemSidebarOpen(false)}
-      />
     </Transitions>
   );
 }
