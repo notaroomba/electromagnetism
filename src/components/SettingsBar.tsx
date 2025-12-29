@@ -75,14 +75,23 @@ export default function SettingsBar() {
   }, [implementation]);
 
   // Track manual changes to velocity vectors while paused
+  // When pause state changes: save previous setting and force show while paused;
+  // when unpausing, restore what the user had before pausing.
   useEffect(() => {
     if (isPaused) {
-      setShowVelocityVectors(true);
-      // Update the ref when user manually changes velocity vectors while paused
       previousVelocityVectorsRef.current = showVelocityVectors;
+      setShowVelocityVectors(true);
     } else {
-      // Restore the previous velocity vector setting when unpaused
       setShowVelocityVectors(previousVelocityVectorsRef.current);
+    }
+    // Re-render to ensure visuals update when pause toggles
+    setRender((prev) => prev + 1);
+  }, [isPaused]);
+
+  // Track manual changes to velocity vector visibility while paused so we remember user intent
+  useEffect(() => {
+    if (isPaused) {
+      previousVelocityVectorsRef.current = showVelocityVectors;
     }
   }, [showVelocityVectors, isPaused]);
 

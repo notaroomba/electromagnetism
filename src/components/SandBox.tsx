@@ -166,7 +166,8 @@ export default function SandBox({ universe }: SandBoxProps) {
           );
 
           // Draw velocity vector (gray)
-          if (velocityMag > 0.01) {
+          const minVel = isPaused ? 0.001 : 0.01; // show smaller vectors when paused for inspection
+          if (velocityMag > minVel) {
             const velScale = 2;
             const velX = particle.vel.x * velScale;
             const velY = particle.vel.y * velScale;
@@ -209,44 +210,71 @@ export default function SandBox({ universe }: SandBoxProps) {
           }
         }
 
-        // Velocity vectors for magnets (green)
-        const magnets = (universe as any).get_magnets() as any[];
-        for (let i = 0; i < magnets.length; i++) {
-          const m = magnets[i];
-          const vmag = Math.sqrt(m.vel.x * m.vel.x + m.vel.y * m.vel.y);
-          if (vmag > 0.01) {
-            const velScale = 2;
-            const velX = m.vel.x * velScale;
-            const velY = m.vel.y * velScale;
+        // Draw acceleration for particles due to other particles (exclude magnets)
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          const mi = universe.get_mass_calculation()
+            ? p.mass
+            : universe.get_default_mass();
+          let ax = 0;
+          let ay = 0;
+          const k = universe.get_coulomb_constant();
+          const minDist = universe.get_min_interaction_distance();
+          const minDistSq = minDist * minDist;
+
+          for (let j = 0; j < particles.length; j++) {
+            if (i === j) continue;
+            const qj = particles[j].charge;
+            const rx = p.pos.x - particles[j].pos.x;
+            const ry = p.pos.y - particles[j].pos.y;
+            const distSq = rx * rx + ry * ry;
+            const safeDistSq = distSq < minDistSq ? minDistSq : distSq;
+            const dist = Math.sqrt(safeDistSq);
+            if (dist > 1e-8) {
+              const forceMagnitude = (k * p.charge * qj) / safeDistSq;
+              const accMagnitude = forceMagnitude / mi;
+              ax += accMagnitude * (rx / dist);
+              ay += accMagnitude * (ry / dist);
+            }
+          }
+
+          const amag = Math.sqrt(ax * ax + ay * ay);
+          const minAcc = isPaused ? 1e-6 : 1e-4;
+          if (amag > minAcc) {
+            const accScale = 0.1; // visual scaling for particle accelerations
+            const accX = ax * accScale;
+            const accY = ay * accScale;
             graphics.setStrokeStyle({
               width: 3,
-              color: 0x10b981,
+              color: 0xda70d6, // purple for particle accel
               alpha: 1,
               cap: "round",
               join: "round",
             });
-            graphics.moveTo(m.pos.x, m.pos.y);
-            graphics.lineTo(m.pos.x + velX, m.pos.y + velY);
+            graphics.moveTo(p.pos.x, p.pos.y);
+            graphics.lineTo(p.pos.x + accX, p.pos.y + accY);
             graphics.stroke();
 
-            // Arrowhead
             const arrowSize = 12;
             const arrowAngle = Math.PI / 6;
-            const angle = Math.atan2(velY, velX);
-            const tipX = m.pos.x + velX;
-            const tipY = m.pos.y + velY;
+            const angle = Math.atan2(accY, accX);
+            const tipX = p.pos.x + accX;
+            const tipY = p.pos.y + accY;
+            const arrowOffset = -8;
+            const arrowTipX = tipX - Math.cos(angle) * arrowOffset;
+            const arrowTipY = tipY - Math.sin(angle) * arrowOffset;
             graphics.poly([
-              { x: tipX, y: tipY },
+              { x: arrowTipX, y: arrowTipY },
               {
-                x: tipX - Math.cos(angle - arrowAngle) * arrowSize,
-                y: tipY - Math.sin(angle - arrowAngle) * arrowSize,
+                x: arrowTipX - Math.cos(angle - arrowAngle) * arrowSize,
+                y: arrowTipY - Math.sin(angle - arrowAngle) * arrowSize,
               },
               {
-                x: tipX - Math.cos(angle + arrowAngle) * arrowSize,
-                y: tipY - Math.sin(angle + arrowAngle) * arrowSize,
+                x: arrowTipX - Math.cos(angle + arrowAngle) * arrowSize,
+                y: arrowTipY - Math.sin(angle + arrowAngle) * arrowSize,
               },
             ]);
-            graphics.fill({ color: 0x10b981, alpha: 1 });
+            graphics.fill({ color: 0xda70d6, alpha: 1 });
           }
         }
       }

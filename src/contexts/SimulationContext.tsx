@@ -18,6 +18,8 @@ interface SimulationContextType {
   setShowMoreInfo: (show: boolean) => void;
   showVelocityVectors: boolean;
   setShowVelocityVectors: (show: boolean) => void;
+  showAccelerationVectors: boolean;
+  setShowAccelerationVectors: (show: boolean) => void;
   showEquipotentialLines: boolean;
   setShowEquipotentialLines: (show: boolean) => void;
   showFieldLines: boolean;
@@ -62,6 +64,7 @@ export function SimulationProvider({
   const [isUniverseEditorOpen, setIsUniverseEditorOpen] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [showVelocityVectors, setShowVelocityVectors] = useState(false);
+  const [showAccelerationVectors, setShowAccelerationVectors] = useState(false);
   const [showEquipotentialLines, setShowEquipotentialLines] = useState(false);
   const [showFieldLines, setShowFieldLines] = useState(true);
   const [viewQuadtree, setViewQuadtree] = useState(false);
@@ -92,6 +95,8 @@ export function SimulationProvider({
         setShowMoreInfo,
         showVelocityVectors,
         setShowVelocityVectors,
+        showAccelerationVectors,
+        setShowAccelerationVectors,
         showEquipotentialLines,
         setShowEquipotentialLines,
         showFieldLines,
