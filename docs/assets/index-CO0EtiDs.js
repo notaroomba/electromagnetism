@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/browserAll-DOxpmmJ2.js","assets/webworkerAll-BX-G6CMk.js","assets/colorToUniform-BXaCBwVl.js","assets/WebGPURenderer-mQlIofYq.js","assets/SharedSystems-dOLHKAWg.js","assets/WebGLRenderer-cKxtO081.js"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/browserAll-hT_qZ75Q.js","assets/webworkerAll-BLf256pq.js","assets/colorToUniform-BXaCBwVl.js","assets/WebGPURenderer-DbligHbn.js","assets/SharedSystems-BpBxqyNl.js","assets/WebGLRenderer-Dhcz3IuP.js"])))=>i.map(i=>d[i]);
 let tg, T2, Es, Qi, Xs, Pe, Ou, Qd, Wa, KS, Px, Ad, VC, Se, ZC, kd, Re, On, A_, QC, cd, T_, ln, f3, Qx, My, Kx, pC, jl, ni, fC, XS, M2, De, dn, y3, q3, U3, r5, u5, p5, g5, y5, C2, $c, eg, B1, Bd, v3, Ic, j2, c1, o1, Ud, UA, j1, Y2, N3, Nd, Qm, Cs, u1, R3, A0, b2, t2, Ia, p2, j_, l5, o5, f5, m5, FA, _g, We, BA, C0, gs, v5, ga, LS;
 let __tla = (async () => {
   var _a2, _b2;
@@ -922,17 +922,17 @@ let __tla = (async () => {
     function Qt(i) {
       St.current === i && (I(et), I(St)), rt.current === i && (I(rt), Zf._currentValue = ft);
     }
-    var Bt, Jt;
+    var Ot, Wt;
     function Yt(i) {
-      if (Bt === void 0) try {
+      if (Ot === void 0) try {
         throw Error();
       } catch (u) {
         var a = u.stack.trim().match(/\n( *(at )?)/);
-        Bt = a && a[1] || "", Jt = -1 < u.stack.indexOf(`
+        Ot = a && a[1] || "", Wt = -1 < u.stack.indexOf(`
     at`) ? " (<anonymous>)" : -1 < u.stack.indexOf("@") ? "@unknown:0:0" : "";
       }
       return `
-` + Bt + i + Jt;
+` + Ot + i + Wt;
     }
     var It = false;
     function ce(i, a) {
@@ -1042,7 +1042,7 @@ let __tla = (async () => {
           return "";
       }
     }
-    function Wt(i) {
+    function Jt(i) {
       try {
         var a = "", u = null;
         do
@@ -2527,13 +2527,13 @@ Error generating stack: ` + f.message + `
         return u !== void 0 ? u : (a = {
           value: i,
           source: a,
-          stack: Wt(a)
+          stack: Jt(a)
         }, Fh.set(i, a), a);
       }
       return {
         value: i,
         source: a,
-        stack: Wt(a)
+        stack: Jt(a)
       };
     }
     var Os = [], Wl = 0, Po = null, Xr = 0, $i = [], Ui = 0, Is = null, $s = 1, ta = "";
@@ -3000,7 +3000,7 @@ Error generating stack: ` + f.message + `
         }
         return null;
       }
-      function Ot(K, P, J, pt) {
+      function Bt(K, P, J, pt) {
         for (var Xt = null, He = null, Ht = P, ue = P = 0, be = null; Ht !== null && ue < J.length; ue++) {
           Ht.index > ue ? (be = Ht, Ht = null) : be = Ht.sibling;
           var Ve = it(K, Ht, J[ue], pt);
@@ -3084,7 +3084,7 @@ Error generating stack: ` + f.message + `
             case ot:
               return J = er(J), Fe(K, P, J, pt);
           }
-          if (Ct(J)) return Ot(K, P, J, pt);
+          if (Ct(J)) return Bt(K, P, J, pt);
           if (Dt(J)) {
             if (Xt = Dt(J), typeof Xt != "function") throw Error(s(150));
             return J = Xt.call(J), Kt(K, P, J, pt);
@@ -3216,21 +3216,21 @@ Error generating stack: ` + f.message + `
               next: null
             });
             t: {
-              var Ot = i, Kt = R;
+              var Bt = i, Kt = R;
               it = a;
               var Fe = u;
               switch (Kt.tag) {
                 case 1:
-                  if (Ot = Kt.payload, typeof Ot == "function") {
-                    _t = Ot.call(Fe, _t, it);
+                  if (Bt = Kt.payload, typeof Bt == "function") {
+                    _t = Bt.call(Fe, _t, it);
                     break t;
                   }
-                  _t = Ot;
+                  _t = Bt;
                   break t;
                 case 3:
-                  Ot.flags = Ot.flags & -65537 | 128;
+                  Bt.flags = Bt.flags & -65537 | 128;
                 case 0:
-                  if (Ot = Kt.payload, it = typeof Ot == "function" ? Ot.call(Fe, _t, it) : Ot, it == null) break t;
+                  if (Bt = Kt.payload, it = typeof Bt == "function" ? Bt.call(Fe, _t, it) : Bt, it == null) break t;
                   _t = S({}, _t, it);
                   break t;
                 case 2:
@@ -5387,8 +5387,8 @@ Error generating stack: ` + f.message + `
             if ((i & 1024) !== 0 && x !== null) {
               i = void 0, u = a, y = x.memoizedProps, x = x.memoizedState, f = u.stateNode;
               try {
-                var Ot = $n(u.type, y);
-                i = f.getSnapshotBeforeUpdate(Ot, x), f.__reactInternalSnapshotBeforeUpdate = i;
+                var Bt = $n(u.type, y);
+                i = f.getSnapshotBeforeUpdate(Bt, x), f.__reactInternalSnapshotBeforeUpdate = i;
               } catch (Kt) {
                 Xe(u, u.return, Kt);
               }
@@ -5685,8 +5685,8 @@ Error generating stack: ` + f.message + `
             y = i.stateNode;
             try {
               Yl(y, "");
-            } catch (Ot) {
-              Xe(i, i.return, Ot);
+            } catch (Bt) {
+              Xe(i, i.return, Bt);
             }
           }
           f & 4 && i.stateNode != null && (y = i.memoizedProps, ws(i, y, u !== null ? u.memoizedProps : y)), f & 1024 && (ja = true);
@@ -5697,16 +5697,16 @@ Error generating stack: ` + f.message + `
             f = i.memoizedProps, u = i.stateNode;
             try {
               u.nodeValue = f;
-            } catch (Ot) {
-              Xe(i, i.return, Ot);
+            } catch (Bt) {
+              Xe(i, i.return, Bt);
             }
           }
           break;
         case 3:
           if (fm = null, y = Li, Li = cm(a.containerInfo), fi(a, i), Li = y, hn(i), f & 4 && u !== null && u.memoizedState.isDehydrated) try {
             Kc(a.containerInfo);
-          } catch (Ot) {
-            Xe(i, i.return, Ot);
+          } catch (Bt) {
+            Xe(i, i.return, Bt);
           }
           ja && (ja = false, sm(i));
           break;
@@ -5736,8 +5736,8 @@ Error generating stack: ` + f.message + `
                     var _t = L.memoizedProps.style, it = _t != null && _t.hasOwnProperty("display") ? _t.display : null;
                     R.style.display = it == null || typeof it == "boolean" ? "" : ("" + it).trim();
                   }
-                } catch (Ot) {
-                  Xe(L, L.return, Ot);
+                } catch (Bt) {
+                  Xe(L, L.return, Bt);
                 }
               }
             } else if (a.tag === 6) {
@@ -5745,8 +5745,8 @@ Error generating stack: ` + f.message + `
                 L = a;
                 try {
                   L.stateNode.nodeValue = y ? "" : L.memoizedProps;
-                } catch (Ot) {
-                  Xe(L, L.return, Ot);
+                } catch (Bt) {
+                  Xe(L, L.return, Bt);
                 }
               }
             } else if (a.tag === 18) {
@@ -5755,8 +5755,8 @@ Error generating stack: ` + f.message + `
                 try {
                   var lt = L.stateNode;
                   y ? Yv(lt, true) : Yv(L.stateNode, false);
-                } catch (Ot) {
-                  Xe(L, L.return, Ot);
+                } catch (Bt) {
+                  Xe(L, L.return, Bt);
                 }
               }
             } else if ((a.tag !== 22 && a.tag !== 23 || a.memoizedState === null || a === i) && a.child !== null) {
@@ -6235,9 +6235,9 @@ Error generating stack: ` + f.message + `
           waitingForViewTransition: false,
           unsuspend: Zs
         }, vn(a, x, _t);
-        var Ot = (x & 62914560) === x ? qa - vt() : (x & 4194048) === x ? ao - vt() : 0;
-        if (Ot = TM(_t, Ot), Ot !== null) {
-          Ms = x, i.cancelPendingCommit = Ot(Ft.bind(null, i, a, x, u, f, y, E, R, L, ct, _t, null, it, lt)), w(i, x, E, !$);
+        var Bt = (x & 62914560) === x ? qa - vt() : (x & 4194048) === x ? ao - vt() : 0;
+        if (Bt = TM(_t, Bt), Bt !== null) {
+          Ms = x, i.cancelPendingCommit = Bt(Ft.bind(null, i, a, x, u, f, y, E, R, L, ct, _t, null, it, lt)), w(i, x, E, !$);
           return;
         }
       }
@@ -6542,7 +6542,7 @@ Error generating stack: ` + f.message + `
                 else {
                   var _t = R.ownerDocument || document, it = _t && _t.defaultView || window;
                   if (it.getSelection) {
-                    var lt = it.getSelection(), Ot = R.textContent.length, Kt = Math.min(L.start, Ot), Fe = L.end === void 0 ? Kt : Math.min(L.end, Ot);
+                    var lt = it.getSelection(), Bt = R.textContent.length, Kt = Math.min(L.start, Bt), Fe = L.end === void 0 ? Kt : Math.min(L.end, Bt);
                     !lt.extend && Kt > Fe && (E = Fe, Fe = Kt, Kt = E);
                     var K = Qh(R, Kt), P = Qh(R, Fe);
                     if (K && P && (lt.rangeCount !== 1 || lt.anchorNode !== K.node || lt.anchorOffset !== K.offset || lt.focusNode !== P.node || lt.focusOffset !== P.offset)) {
@@ -6949,7 +6949,7 @@ Error generating stack: ` + f.message + `
         t: {
           var it = Ma.get(i);
           if (it !== void 0) {
-            var lt = Oo, Ot = i;
+            var lt = Oo, Bt = i;
             switch (i) {
               case "keypress":
                 if (Pl(u) === 0) break t;
@@ -6958,10 +6958,10 @@ Error generating stack: ` + f.message + `
                 lt = Hh;
                 break;
               case "focusin":
-                Ot = "focus", lt = Wu;
+                Bt = "focus", lt = Wu;
                 break;
               case "focusout":
-                Ot = "blur", lt = Wu;
+                Bt = "blur", lt = Wu;
                 break;
               case "beforeblur":
               case "afterblur":
@@ -7036,7 +7036,7 @@ Error generating stack: ` + f.message + `
               if (J = pt.stateNode, pt = pt.tag, pt !== 5 && pt !== 26 && pt !== 27 || J === null || K === null || (pt = Xl(P, K), pt != null && Kt.push(Pf(P, pt, J))), Fe) break;
               P = P.return;
             }
-            0 < Kt.length && (it = new lt(it, Ot, null, u, ct), _t.push({
+            0 < Kt.length && (it = new lt(it, Bt, null, u, ct), _t.push({
               event: it,
               listeners: Kt
             }));
@@ -7044,10 +7044,10 @@ Error generating stack: ` + f.message + `
         }
         if ((a & 7) === 0) {
           t: {
-            if (it = i === "mouseover" || i === "pointerover", lt = i === "mouseout" || i === "pointerout", it && u !== zo && (Ot = u.relatedTarget || u.fromElement) && (Hn(Ot) || Ot[tl])) break t;
-            if ((lt || it) && (it = ct.window === ct ? ct : (it = ct.ownerDocument) ? it.defaultView || it.parentWindow : window, lt ? (Ot = u.relatedTarget || u.toElement, lt = $, Ot = Ot ? Hn(Ot) : null, Ot !== null && (Fe = c(Ot), Kt = Ot.tag, Ot !== Fe || Kt !== 5 && Kt !== 27 && Kt !== 6) && (Ot = null)) : (lt = null, Ot = $), lt !== Ot)) {
-              if (Kt = lp, pt = "onMouseLeave", K = "onMouseEnter", P = "mouse", (i === "pointerout" || i === "pointerover") && (Kt = Ju, pt = "onPointerLeave", K = "onPointerEnter", P = "pointer"), Fe = lt == null ? it : xa(lt), J = Ot == null ? it : xa(Ot), it = new Kt(pt, P + "leave", lt, u, ct), it.target = Fe, it.relatedTarget = J, pt = null, Hn(ct) === $ && (Kt = new Kt(K, P + "enter", Ot, u, ct), Kt.target = J, Kt.relatedTarget = Fe, pt = Kt), Fe = pt, lt && Ot) e: {
-                for (Kt = tM, K = lt, P = Ot, J = 0, pt = K; pt; pt = Kt(pt)) J++;
+            if (it = i === "mouseover" || i === "pointerover", lt = i === "mouseout" || i === "pointerout", it && u !== zo && (Bt = u.relatedTarget || u.fromElement) && (Hn(Bt) || Bt[tl])) break t;
+            if ((lt || it) && (it = ct.window === ct ? ct : (it = ct.ownerDocument) ? it.defaultView || it.parentWindow : window, lt ? (Bt = u.relatedTarget || u.toElement, lt = $, Bt = Bt ? Hn(Bt) : null, Bt !== null && (Fe = c(Bt), Kt = Bt.tag, Bt !== Fe || Kt !== 5 && Kt !== 27 && Kt !== 6) && (Bt = null)) : (lt = null, Bt = $), lt !== Bt)) {
+              if (Kt = lp, pt = "onMouseLeave", K = "onMouseEnter", P = "mouse", (i === "pointerout" || i === "pointerover") && (Kt = Ju, pt = "onPointerLeave", K = "onPointerEnter", P = "pointer"), Fe = lt == null ? it : xa(lt), J = Bt == null ? it : xa(Bt), it = new Kt(pt, P + "leave", lt, u, ct), it.target = Fe, it.relatedTarget = J, pt = null, Hn(ct) === $ && (Kt = new Kt(K, P + "enter", Bt, u, ct), Kt.target = J, Kt.relatedTarget = Fe, pt = Kt), Fe = pt, lt && Bt) e: {
+                for (Kt = tM, K = lt, P = Bt, J = 0, pt = K; pt; pt = Kt(pt)) J++;
                 pt = 0;
                 for (var Xt = P; Xt; Xt = Kt(Xt)) pt++;
                 for (; 0 < J - pt; ) K = Kt(K), J--;
@@ -7062,7 +7062,7 @@ Error generating stack: ` + f.message + `
                 Kt = null;
               }
               else Kt = null;
-              lt !== null && Nv(_t, it, lt, Kt, false), Ot !== null && Fe !== null && Nv(_t, Fe, Ot, Kt, true);
+              lt !== null && Nv(_t, it, lt, Kt, false), Bt !== null && Fe !== null && Nv(_t, Fe, Bt, Kt, true);
             }
           }
           t: {
@@ -7659,12 +7659,12 @@ Error generating stack: ` + f.message + `
           Eh(i, it, lt);
           return;
         case "option":
-          for (var Ot in u) if (it = u[Ot], u.hasOwnProperty(Ot) && it != null && !f.hasOwnProperty(Ot)) switch (Ot) {
+          for (var Bt in u) if (it = u[Bt], u.hasOwnProperty(Bt) && it != null && !f.hasOwnProperty(Bt)) switch (Bt) {
             case "selected":
               i.selected = false;
               break;
             default:
-              Ze(i, a, Ot, null, f, it);
+              Ze(i, a, Bt, null, f, it);
           }
           for (L in f) if (it = f[L], lt = u[L], f.hasOwnProperty(L) && it !== lt && (it != null || lt != null)) switch (L) {
             case "selected":
@@ -10366,7 +10366,7 @@ Please change the parent <Route path="${O}"> to <Route path="${O === "/" ? "*" :
     },
     test: () => true,
     load: async () => {
-      await $m(() => import("./browserAll-DOxpmmJ2.js").then(async (m) => {
+      await $m(() => import("./browserAll-hT_qZ75Q.js").then(async (m) => {
         await m.__tla;
         return m;
       }), __vite__mapDeps([0,1,2]));
@@ -10380,7 +10380,7 @@ Please change the parent <Route path="${O}"> to <Route path="${O === "/" ? "*" :
     },
     test: () => typeof self < "u" && self.WorkerGlobalScope !== void 0,
     load: async () => {
-      await $m(() => import("./webworkerAll-BX-G6CMk.js").then(async (m) => {
+      await $m(() => import("./webworkerAll-BLf256pq.js").then(async (m) => {
         await m.__tla;
         return m;
       }), __vite__mapDeps([1,2]));
@@ -15399,7 +15399,7 @@ ${e}`;
       const h = t[c];
       if (h === "webgpu" && await m3()) {
         const { WebGPURenderer: d } = await $m(async () => {
-          const { WebGPURenderer: m } = await import("./WebGPURenderer-mQlIofYq.js").then(async (m2) => {
+          const { WebGPURenderer: m } = await import("./WebGPURenderer-DbligHbn.js").then(async (m2) => {
             await m2.__tla;
             return m2;
           });
@@ -15414,7 +15414,7 @@ ${e}`;
         break;
       } else if (h === "webgl" && p3(e.failIfMajorPerformanceCaveat ?? T2.defaultOptions.failIfMajorPerformanceCaveat)) {
         const { WebGLRenderer: d } = await $m(async () => {
-          const { WebGLRenderer: m } = await import("./WebGLRenderer-cKxtO081.js").then(async (m2) => {
+          const { WebGLRenderer: m } = await import("./WebGLRenderer-Dhcz3IuP.js").then(async (m2) => {
             await m2.__tla;
             return m2;
           });
@@ -17414,8 +17414,8 @@ ${l.join(`
         M.push(W - ut * V, q - yt * V), M.push(W + ut * X, q + yt * X), et >= 0 && (d.join === "round" ? N += _u(W, q, W - ut * V, q - yt * V, W - Dt * V, q - Nt * V, M, false) + 4 : N += 2, M.push(W - Dt * X, q - Nt * X), M.push(W + Dt * V, q + Nt * V));
         continue;
       }
-      const rt = (-ut + Y) * (-yt + q) - (-ut + W) * (-yt + F), Mt = (-Dt + ot) * (-Nt + q) - (-Dt + W) * (-Nt + dt), bt = (k * Mt - I * rt) / St, Ut = (gt * rt - H * Mt) / St, Qt = (bt - W) * (bt - W) + (Ut - q) * (Ut - q), Bt = W + (bt - W) * V, Jt = q + (Ut - q) * V, Yt = W - (bt - W) * X, It = q - (Ut - q) * X, ce = Math.min(k * k + H * H, I * I + gt * gt), le = xt ? V : X, Wt = ce + le * le * O;
-      Qt <= Wt ? d.join === "bevel" || Qt / O > U ? (xt ? (M.push(Bt, Jt), M.push(W + ut * X, q + yt * X), M.push(Bt, Jt), M.push(W + Dt * X, q + Nt * X)) : (M.push(W - ut * V, q - yt * V), M.push(Yt, It), M.push(W - Dt * V, q - Nt * V), M.push(Yt, It)), N += 2) : d.join === "round" ? xt ? (M.push(Bt, Jt), M.push(W + ut * X, q + yt * X), N += _u(W, q, W + ut * X, q + yt * X, W + Dt * X, q + Nt * X, M, true) + 4, M.push(Bt, Jt), M.push(W + Dt * X, q + Nt * X)) : (M.push(W - ut * V, q - yt * V), M.push(Yt, It), N += _u(W, q, W - ut * V, q - yt * V, W - Dt * V, q - Nt * V, M, false) + 4, M.push(W - Dt * V, q - Nt * V), M.push(Yt, It)) : (M.push(Bt, Jt), M.push(Yt, It)) : (M.push(W - ut * V, q - yt * V), M.push(W + ut * X, q + yt * X), d.join === "round" ? xt ? N += _u(W, q, W + ut * X, q + yt * X, W + Dt * X, q + Nt * X, M, true) + 2 : N += _u(W, q, W - ut * V, q - yt * V, W - Dt * V, q - Nt * V, M, false) + 2 : d.join === "miter" && Qt / O <= U && (xt ? (M.push(Yt, It), M.push(Yt, It)) : (M.push(Bt, Jt), M.push(Bt, Jt)), N += 2), M.push(W - Dt * V, q - Nt * V), M.push(W + Dt * X, q + Nt * X), N += 2);
+      const rt = (-ut + Y) * (-yt + q) - (-ut + W) * (-yt + F), Mt = (-Dt + ot) * (-Nt + q) - (-Dt + W) * (-Nt + dt), bt = (k * Mt - I * rt) / St, Ut = (gt * rt - H * Mt) / St, Qt = (bt - W) * (bt - W) + (Ut - q) * (Ut - q), Ot = W + (bt - W) * V, Wt = q + (Ut - q) * V, Yt = W - (bt - W) * X, It = q - (Ut - q) * X, ce = Math.min(k * k + H * H, I * I + gt * gt), le = xt ? V : X, Jt = ce + le * le * O;
+      Qt <= Jt ? d.join === "bevel" || Qt / O > U ? (xt ? (M.push(Ot, Wt), M.push(W + ut * X, q + yt * X), M.push(Ot, Wt), M.push(W + Dt * X, q + Nt * X)) : (M.push(W - ut * V, q - yt * V), M.push(Yt, It), M.push(W - Dt * V, q - Nt * V), M.push(Yt, It)), N += 2) : d.join === "round" ? xt ? (M.push(Ot, Wt), M.push(W + ut * X, q + yt * X), N += _u(W, q, W + ut * X, q + yt * X, W + Dt * X, q + Nt * X, M, true) + 4, M.push(Ot, Wt), M.push(W + Dt * X, q + Nt * X)) : (M.push(W - ut * V, q - yt * V), M.push(Yt, It), N += _u(W, q, W - ut * V, q - yt * V, W - Dt * V, q - Nt * V, M, false) + 4, M.push(W - Dt * V, q - Nt * V), M.push(Yt, It)) : (M.push(Ot, Wt), M.push(Yt, It)) : (M.push(W - ut * V, q - yt * V), M.push(W + ut * X, q + yt * X), d.join === "round" ? xt ? N += _u(W, q, W + ut * X, q + yt * X, W + Dt * X, q + Nt * X, M, true) + 2 : N += _u(W, q, W - ut * V, q - yt * V, W - Dt * V, q - Nt * V, M, false) + 2 : d.join === "miter" && Qt / O <= U && (xt ? (M.push(Yt, It), M.push(Yt, It)) : (M.push(Ot, Wt), M.push(Ot, Wt)), N += 2), M.push(W - Dt * V, q - Nt * V), M.push(W + Dt * X, q + Nt * X), N += 2);
     }
     Y = e[(C - 2) * 2], F = e[(C - 2) * 2 + 1], W = e[(C - 1) * 2], q = e[(C - 1) * 2 + 1], ut = -(F - q), yt = Y - W, At = Math.sqrt(ut * ut + yt * yt), ut /= At, yt /= At, ut *= z, yt *= z, M.push(W - ut * V, q - yt * V), M.push(W + ut * X, q + yt * X), S || (d.cap === "round" ? N += _u(W - ut * (V - X) * 0.5, q - yt * (V - X) * 0.5, W - ut * V, q - yt * V, W + ut * X, q + yt * X, M, false) + 2 : d.cap === "square" && (N += b1(W, q, ut, yt, V, X, false, M)));
     const ft = x1 * x1;
@@ -20714,7 +20714,7 @@ Error generating stack: ` + p.message + `
         }
         function Mt(r) {
           var o = Error(l(418, ""));
-          throw Jt(mt(o, r)), cu;
+          throw Wt(mt(o, r)), cu;
         }
         function bt(r, o) {
           if (!bi) throw Error(l(175));
@@ -20745,10 +20745,10 @@ Error generating stack: ` + p.message + `
           } else ti = ci ? Mf(r.stateNode) : null;
           return true;
         }
-        function Bt() {
+        function Ot() {
           bi && (ti = ci = null, we = false);
         }
-        function Jt(r) {
+        function Wt(r) {
           ls === null ? ls = [
             r
           ] : ls.push(r);
@@ -20766,7 +20766,7 @@ Error generating stack: ` + p.message + `
               var D = _.pending;
               D === null ? b.next = b : (b.next = D.next, D.next = b), _.pending = b;
             }
-            w !== 0 && Wt(p, b, w);
+            w !== 0 && Jt(p, b, w);
           }
         }
         function It(r, o, p, _) {
@@ -20778,7 +20778,7 @@ Error generating stack: ` + p.message + `
         function le(r, o) {
           return It(r, null, null, o), ge(r);
         }
-        function Wt(r, o, p) {
+        function Jt(r, o, p) {
           r.lanes |= p;
           var _ = r.alternate;
           _ !== null && (_.lanes |= p);
@@ -20942,7 +20942,7 @@ Error generating stack: ` + p.message + `
           if (_ === null) return null;
           if (_ = _.shared, (Lt & 2) !== 0) {
             var b = _.pending;
-            return b === null ? o.next = o : (o.next = b.next, b.next = o), _.pending = o, o = ge(r), Wt(r, null, p), o;
+            return b === null ? o.next = o : (o.next = b.next, b.next = o), _.pending = o, o = ge(r), Jt(r, null, p), o;
           }
           return It(r, _, o, p), ge(r);
         }
@@ -22107,9 +22107,9 @@ Error generating stack: ` + p.message + `
           }
           if (we) return o = us.current, o !== null ? ((o.flags & 65536) === 0 && (o.flags |= 256), o.flags |= 65536, o.lanes = b, _ !== cu && (r = Error(l(422), {
             cause: _
-          }), Jt(mt(r, p)))) : (_ !== cu && (o = Error(l(423), {
+          }), Wt(mt(r, p)))) : (_ !== cu && (o = Error(l(423), {
             cause: _
-          }), Jt(mt(o, p))), r = r.current.alternate, r.flags |= 65536, b &= -b, r.lanes |= b, _ = mt(_, p), b = Bo(r.stateNode, _, b), Pt(r, b), xe !== 4 && (xe = 2)), false;
+          }), Wt(mt(o, p))), r = r.current.alternate, r.flags |= 65536, b &= -b, r.lanes |= b, _ = mt(_, p), b = Bo(r.stateNode, _, b), Pt(r, b), xe !== 4 && (xe = 2)), false;
           var w = Error(l(520), {
             cause: _
           });
@@ -22223,7 +22223,7 @@ Error generating stack: ` + p.message + `
           return w = _, Ho(r, o), _ = (o.flags & 128) !== 0, w || _ ? (w = o.stateNode, p = _ && typeof p.getDerivedStateFromError != "function" ? null : w.render(), o.flags |= 1, r !== null && _ ? (o.child = Rl(o, r.child, null, b), o.child = Rl(o, null, p, b)) : Zn(r, o, p, b), o.memoizedState = w.state, r = o.child) : r = wa(r, o, b), r;
         }
         function fp(r, o, p, _) {
-          return Bt(), o.flags |= 256, Zn(r, o, p, _), o.child;
+          return Ot(), o.flags |= 256, Zn(r, o, p, _), o.child;
         }
         function Oh(r) {
           return {
@@ -22262,7 +22262,7 @@ Error generating stack: ` + p.message + `
               mode: "visible",
               children: _.children
             }, G), b = Da(b, G, p, null), b.flags |= 2, _.return = o, b.return = o, _.sibling = b, o.child = _, Rl(o, r.child, null, p), _ = o.child, _.memoizedState = Oh(p), _.childLanes = Bh(r, D, p), o.memoizedState = fi, o = b);
-            else if (ks(o), nu(G)) D = Up(G).digest, _ = Error(l(419)), _.stack = "", _.digest = D, Jt({
+            else if (ks(o), nu(G)) D = Up(G).digest, _ = Error(l(419)), _.stack = "", _.digest = D, Wt({
               value: _,
               source: null,
               stack: null
@@ -22417,7 +22417,7 @@ Error generating stack: ` + p.message + `
         function Ag(r, o, p) {
           switch (o.tag) {
             case 3:
-              et(o, o.stateNode.containerInfo), ll(o, Oe, r.memoizedState.cache), Bt();
+              et(o, o.stateNode.containerInfo), ll(o, Oe, r.memoizedState.cache), Ot();
               break;
             case 27:
             case 5:
@@ -22497,11 +22497,11 @@ Error generating stack: ` + p.message + `
                   o = fp(r, o, w, p);
                   break t;
                 } else if (w !== _) {
-                  _ = mt(Error(l(424)), o), Jt(_), o = fp(r, o, w, p);
+                  _ = mt(Error(l(424)), o), Wt(_), o = fp(r, o, w, p);
                   break t;
                 } else for (bi && (ti = jp(o.stateNode.containerInfo), ci = o, we = true, ls = null, bs = true), p = Lf(o, null, w, p), o.child = p; p; ) p.flags = p.flags & -3 | 4096, p = p.sibling;
                 else {
-                  if (Bt(), w === _) {
+                  if (Ot(), w === _) {
                     o = wa(r, o, p);
                     break t;
                   }
@@ -22876,7 +22876,7 @@ Error generating stack: ` + p.message + `
                     if (!bi) throw Error(l(344));
                     if (b = o.memoizedState, b = b !== null ? b.dehydrated : null, !b) throw Error(l(317));
                     Zr(b, o);
-                  } else Bt(), (o.flags & 128) === 0 && (o.memoizedState = null), o.flags |= 4;
+                  } else Ot(), (o.flags & 128) === 0 && (o.memoizedState = null), o.flags |= 4;
                   Ie(o), b = false;
                 } else ls !== null && (Ea(ls), ls = null), b = true;
                 if (!b) return o.flags & 256 ? (Qs(o), o) : (Qs(o), null);
@@ -22935,7 +22935,7 @@ Error generating stack: ` + p.message + `
             case 13:
               if (Qs(o), r = o.memoizedState, r !== null && r.dehydrated !== null) {
                 if (o.alternate === null) throw Error(l(340));
-                Bt();
+                Ot();
               }
               return r = o.flags, r & 65536 ? (o.flags = r & -65537 | 128, o) : null;
             case 19:
@@ -25416,7 +25416,7 @@ No matching component was found for:
       h
     ]);
   }
-  const YR = "/assets/physics_engine_bg-CD3ODy-S.wasm", qR = async (e = {}, t) => {
+  const YR = "/assets/physics_engine_bg-BAVnVM7u.wasm", qR = async (e = {}, t) => {
     let n;
     if (t.startsWith("data:")) {
       const s = t.replace(/^data:.*?base64,/, "");
@@ -26159,8 +26159,8 @@ ${e.stack}` : s;
       __wbg___wbindgen_debug_string_adfb662ae34724b6: JR,
       __wbindgen_init_externref_table: o6,
       __wbindgen_cast_d6cd19b81560fd6e: r6,
-      __wbindgen_cast_2241b6af4c4b2941: a6,
-      __wbindgen_cast_4625c577ab2ec9ee: l6
+      __wbindgen_cast_4625c577ab2ec9ee: l6,
+      __wbindgen_cast_2241b6af4c4b2941: a6
     }
   }, YR), u6 = st.memory, c6 = st.__wbg_get_magnet_acc, h6 = st.__wbg_get_magnet_angle, f6 = st.__wbg_get_magnet_color_north, d6 = st.__wbg_get_magnet_color_south, p6 = st.__wbg_get_magnet_fixed, m6 = st.__wbg_get_magnet_mass, g6 = st.__wbg_get_magnet_pos, y6 = st.__wbg_get_magnet_size, _6 = st.__wbg_get_magnet_strength, v6 = st.__wbg_get_magnet_thickness, x6 = st.__wbg_get_magnet_vel, b6 = st.__wbg_get_particle_color, S6 = st.__wbg_get_particle_fixed, w6 = st.__wbg_get_particle_radius, T6 = st.__wbg_get_trail_color, M6 = st.__wbg_get_vec2_x, E6 = st.__wbg_get_vec2_y, A6 = st.__wbg_magnet_free, C6 = st.__wbg_particle_free, R6 = st.__wbg_quadtreenode_free, z6 = st.__wbg_set_magnet_acc, D6 = st.__wbg_set_magnet_angle, N6 = st.__wbg_set_magnet_color_north, O6 = st.__wbg_set_magnet_color_south, B6 = st.__wbg_set_magnet_fixed, U6 = st.__wbg_set_magnet_mass, H6 = st.__wbg_set_magnet_pos, V6 = st.__wbg_set_magnet_size, j6 = st.__wbg_set_magnet_strength, G6 = st.__wbg_set_magnet_thickness, L6 = st.__wbg_set_magnet_vel, Y6 = st.__wbg_set_particle_color, q6 = st.__wbg_set_particle_fixed, X6 = st.__wbg_set_particle_radius, P6 = st.__wbg_set_trail_color, k6 = st.__wbg_set_vec2_x, Q6 = st.__wbg_set_vec2_y, K6 = st.__wbg_trail_free, Z6 = st.__wbg_universe_free, F6 = st.__wbg_vec2_free, W6 = st.magnet_get_data, J6 = st.magnet_is_fixed, I6 = st.magnet_new, $6 = st.magnet_new_simple, tz = st.magnet_set_fixed, ez = st.particle_add_trail_point, nz = st.particle_get_charge, iz = st.particle_get_data, sz = st.particle_get_trail, az = st.particle_is_fixed, lz = st.particle_new, rz = st.particle_new_simple, oz = st.particle_set_charge, uz = st.particle_set_fixed, cz = st.quadtreenode_get_data, hz = st.universe_add_magnet, fz = st.universe_add_magnet_simple, dz = st.universe_add_particle, pz = st.universe_add_particle_simple, mz = st.universe_get_collisions_enabled, gz = st.universe_get_coulomb_constant, yz = st.universe_get_data, _z = st.universe_get_default_charge, vz = st.universe_get_default_mass, xz = st.universe_get_implementation, bz = st.universe_get_is_paused, Sz = st.universe_get_magnet, wz = st.universe_get_magnet_count, Tz = st.universe_get_magnets, Mz = st.universe_get_mass_calculation, Ez = st.universe_get_min_interaction_distance, Az = st.universe_get_particle, Cz = st.universe_get_particle_count, Rz = st.universe_get_particles, zz = st.universe_get_quadtree, Dz = st.universe_get_quadtree_theta, Nz = st.universe_get_restitution, Oz = st.universe_get_show_trails, Bz = st.universe_get_spawn_range, Uz = st.universe_get_speed, Hz = st.universe_get_trails, Vz = st.universe_get_use_mass_in_calculation, jz = st.universe_get_use_quadtree, Gz = st.universe_new, Lz = st.universe_new_empty, Yz = st.universe_pop_magnet, qz = st.universe_pop_particle, Xz = st.universe_random_color, Pz = st.universe_remove_magnet, kz = st.universe_remove_particle, Qz = st.universe_reset, Kz = st.universe_set_collisions_enabled, Zz = st.universe_set_coulomb_constant, Fz = st.universe_set_default_charge, Wz = st.universe_set_default_mass, Jz = st.universe_set_implementation, Iz = st.universe_set_is_paused, $z = st.universe_set_mass_calculation, tD = st.universe_set_min_interaction_distance, eD = st.universe_set_quadtree_theta, nD = st.universe_set_restitution, iD = st.universe_set_show_trails, sD = st.universe_set_spawn_range, aD = st.universe_set_speed, lD = st.universe_set_use_mass_in_calculation, rD = st.universe_set_use_quadtree, oD = st.universe_time_step, uD = st.universe_toggle_use_quadtree, cD = st.universe_update_magnet_angle, hD = st.universe_update_magnet_color_north, fD = st.universe_update_magnet_color_south, dD = st.universe_update_magnet_fixed, pD = st.universe_update_magnet_mass, mD = st.universe_update_magnet_position, gD = st.universe_update_magnet_size, yD = st.universe_update_magnet_strength, _D = st.universe_update_magnet_thickness, vD = st.universe_update_magnet_velocity, xD = st.universe_update_particle_charge, bD = st.universe_update_particle_color, SD = st.universe_update_particle_fixed, wD = st.universe_update_particle_mass, TD = st.universe_update_particle_position, MD = st.universe_update_particle_radius, ED = st.universe_update_particle_velocity, AD = st.vec2_distance_from, CD = st.vec2_magnitude, RD = st.vec2_new, zD = st.vec2_normalize, DD = st.__wbg_set_particle_charge, ND = st.__wbg_set_particle_mass, OD = st.__wbg_get_particle_acc, BD = st.__wbg_get_particle_pos, UD = st.__wbg_get_particle_vel, HD = st.__wbg_get_trail_pos, VD = st.__wbg_get_particle_charge, jD = st.__wbg_get_particle_mass, GD = st.__wbg_set_particle_acc, LD = st.__wbg_set_particle_pos, YD = st.__wbg_set_particle_vel, qD = st.__wbg_set_trail_pos, XD = st.__wbindgen_malloc, PD = st.__wbindgen_realloc, kD = st.__wbindgen_exn_store, QD = st.__externref_table_alloc, KD = st.__wbindgen_externrefs, ZD = st.__externref_drop_slice, FD = st.__wbindgen_free, lw = st.__wbindgen_start, WD = Object.freeze(Object.defineProperty({
     __proto__: null,
@@ -26416,27 +26416,27 @@ ${e.stack}` : s;
         for (let xt = 0; xt < H.length; xt++) {
           const rt = H[xt];
           if (Math.sqrt(rt.vel.x * rt.vel.x + rt.vel.y * rt.vel.y) > (gt ? 1e-3 : 0.01)) {
-            const Qt = rt.vel.x * 2, Bt = rt.vel.y * 2;
+            const Qt = rt.vel.x * 2, Ot = rt.vel.y * 2;
             k.setStrokeStyle({
               width: 3,
               color: 4871528,
               alpha: 1,
               cap: "round",
               join: "round"
-            }), k.moveTo(rt.pos.x, rt.pos.y), k.lineTo(rt.pos.x + Qt, rt.pos.y + Bt), k.stroke();
-            const Jt = 15, Yt = Math.PI / 6, It = Math.atan2(Bt, Qt), ce = rt.pos.x + Qt, le = rt.pos.y + Bt, Wt = -8, ge = ce - Math.cos(It) * Wt, qt = le - Math.sin(It) * Wt;
+            }), k.moveTo(rt.pos.x, rt.pos.y), k.lineTo(rt.pos.x + Qt, rt.pos.y + Ot), k.stroke();
+            const Wt = 15, Yt = Math.PI / 6, It = Math.atan2(Ot, Qt), ce = rt.pos.x + Qt, le = rt.pos.y + Ot, Jt = -8, ge = ce - Math.cos(It) * Jt, qt = le - Math.sin(It) * Jt;
             k.poly([
               {
                 x: ge,
                 y: qt
               },
               {
-                x: ge - Math.cos(It - Yt) * Jt,
-                y: qt - Math.sin(It - Yt) * Jt
+                x: ge - Math.cos(It - Yt) * Wt,
+                y: qt - Math.sin(It - Yt) * Wt
               },
               {
-                x: ge - Math.cos(It + Yt) * Jt,
-                y: qt - Math.sin(It + Yt) * Jt
+                x: ge - Math.cos(It + Yt) * Wt,
+                y: qt - Math.sin(It + Yt) * Wt
               }
             ]), k.fill({
               color: 4871528,
@@ -26447,25 +26447,25 @@ ${e.stack}` : s;
         for (let xt = 0; xt < H.length; xt++) {
           const rt = H[xt], Mt = e.get_mass_calculation() ? rt.mass : e.get_default_mass();
           let bt = 0, Ut = 0;
-          const Qt = e.get_coulomb_constant(), Bt = e.get_min_interaction_distance(), Jt = Bt * Bt;
+          const Qt = e.get_coulomb_constant(), Ot = e.get_min_interaction_distance(), Wt = Ot * Ot;
           for (let ce = 0; ce < H.length; ce++) {
             if (xt === ce) continue;
-            const le = H[ce].charge, Wt = rt.pos.x - H[ce].pos.x, ge = rt.pos.y - H[ce].pos.y, qt = Wt * Wt + ge * ge, re = qt < Jt ? Jt : qt, Ae = Math.sqrt(re);
+            const le = H[ce].charge, Jt = rt.pos.x - H[ce].pos.x, ge = rt.pos.y - H[ce].pos.y, qt = Jt * Jt + ge * ge, re = qt < Wt ? Wt : qt, Ae = Math.sqrt(re);
             if (Ae > 1e-8) {
               const vt = Qt * rt.charge * le / re / Mt;
-              bt += vt * (Wt / Ae), Ut += vt * (ge / Ae);
+              bt += vt * (Jt / Ae), Ut += vt * (ge / Ae);
             }
           }
           if (Math.sqrt(bt * bt + Ut * Ut) > (gt ? 1e-6 : 1e-4)) {
-            const le = bt * 0.1, Wt = Ut * 0.1;
+            const le = bt * 0.1, Jt = Ut * 0.1;
             k.setStrokeStyle({
               width: 3,
               color: 14315734,
               alpha: 1,
               cap: "round",
               join: "round"
-            }), k.moveTo(rt.pos.x, rt.pos.y), k.lineTo(rt.pos.x + le, rt.pos.y + Wt), k.stroke();
-            const ge = 12, qt = Math.PI / 6, re = Math.atan2(Wt, le), Ae = rt.pos.x + le, wt = rt.pos.y + Wt, vt = -8, Ce = Ae - Math.cos(re) * vt, he = wt - Math.sin(re) * vt;
+            }), k.moveTo(rt.pos.x, rt.pos.y), k.lineTo(rt.pos.x + le, rt.pos.y + Jt), k.stroke();
+            const ge = 12, qt = Math.PI / 6, re = Math.atan2(Jt, le), Ae = rt.pos.x + le, wt = rt.pos.y + Jt, vt = -8, Ce = Ae - Math.cos(re) * vt, he = wt - Math.sin(re) * vt;
             k.poly([
               {
                 x: Ce,
@@ -26489,12 +26489,12 @@ ${e.stack}` : s;
       if (T && e.get_use_quadtree && e.get_use_quadtree()) try {
         const xt = e.get_quadtree(), rt = (Mt) => {
           if (!Mt) return;
-          const bt = Mt.dimensions.x / 2, Ut = Mt.dimensions.y / 2, Qt = Mt.center.x - bt, Bt = Mt.center.y - Ut;
-          if (k.rect(Qt, Bt, Mt.dimensions.x, Mt.dimensions.y), k.stroke({
+          const bt = Mt.dimensions.x / 2, Ut = Mt.dimensions.y / 2, Qt = Mt.center.x - bt, Ot = Mt.center.y - Ut;
+          if (k.rect(Qt, Ot, Mt.dimensions.x, Mt.dimensions.y), k.stroke({
             width: 2,
             color: 65280,
             alpha: 0.6
-          }), Mt.children) for (const Jt of Mt.children) rt(Jt);
+          }), Mt.children) for (const Wt of Mt.children) rt(Wt);
         };
         rt(xt);
       } catch {
@@ -26509,31 +26509,33 @@ ${e.stack}` : s;
           width: 3,
           color: 16747008,
           alpha: 0.9 * Ut
-        })), k.circle(rt.pos.x, rt.pos.y, rt.radius), k.fill({
-          color: rt.color,
+        })), k.circle(rt.pos.x, rt.pos.y, rt.radius);
+        const Ot = (rt.charge ?? 0) !== 0 ? rt.color : 10265519;
+        k.fill({
+          color: Ot,
           alpha: Ut
         });
       }
       const et = e.get_magnets();
       for (let xt = 0; xt < et.length; xt++) {
-        const rt = et[xt], Mt = rt.pos.x, bt = rt.pos.y, Ut = rt.angle || 0, Qt = (rt.size || 60) / 2, Bt = (rt.thickness || 20) / 2, Jt = Math.cos(Ut), Yt = Math.sin(Ut), It = -Yt, ce = Jt, le = {
-          x: Mt + Jt * Qt + It * Bt,
-          y: bt + Yt * Qt + ce * Bt
-        }, Wt = {
-          x: Mt - Jt * Qt + It * Bt,
-          y: bt - Yt * Qt + ce * Bt
+        const rt = et[xt], Mt = rt.pos.x, bt = rt.pos.y, Ut = rt.angle || 0, Qt = (rt.size || 60) / 2, Ot = (rt.thickness || 20) / 2, Wt = Math.cos(Ut), Yt = Math.sin(Ut), It = -Yt, ce = Wt, le = {
+          x: Mt + Wt * Qt + It * Ot,
+          y: bt + Yt * Qt + ce * Ot
+        }, Jt = {
+          x: Mt - Wt * Qt + It * Ot,
+          y: bt - Yt * Qt + ce * Ot
         }, ge = {
-          x: Mt - Jt * Qt - It * Bt,
-          y: bt - Yt * Qt - ce * Bt
+          x: Mt - Wt * Qt - It * Ot,
+          y: bt - Yt * Qt - ce * Ot
         }, qt = {
-          x: Mt + Jt * Qt - It * Bt,
-          y: bt + Yt * Qt - ce * Bt
+          x: Mt + Wt * Qt - It * Ot,
+          y: bt + Yt * Qt - ce * Ot
         }, re = {
-          x: Mt + It * Bt,
-          y: bt + ce * Bt
+          x: Mt + It * Ot,
+          y: bt + ce * Ot
         }, Ae = {
-          x: Mt - It * Bt,
-          y: bt - ce * Bt
+          x: Mt - It * Ot,
+          y: bt - ce * Ot
         };
         k.beginFill(rt.color_north || 16711680, 1), k.poly([
           {
@@ -26554,8 +26556,8 @@ ${e.stack}` : s;
           }
         ]), k.fill(), k.beginFill(rt.color_south || 255, 1), k.poly([
           {
-            x: Wt.x,
-            y: Wt.y
+            x: Jt.x,
+            y: Jt.y
           },
           {
             x: ge.x,
@@ -26573,7 +26575,7 @@ ${e.stack}` : s;
           width: 3,
           color: 16747008,
           alpha: 0.95
-        }), k.moveTo(le.x, le.y), k.lineTo(Wt.x, Wt.y), k.lineTo(ge.x, ge.y), k.lineTo(qt.x, qt.y), k.lineTo(le.x, le.y), k.stroke());
+        }), k.moveTo(le.x, le.y), k.lineTo(Jt.x, Jt.y), k.lineTo(ge.x, ge.y), k.lineTo(qt.x, qt.y), k.lineTo(le.x, le.y), k.stroke());
       }
       const St = q.current;
       if (St) {
@@ -26599,14 +26601,14 @@ ${e.stack}` : s;
           rt && (St.removeChild(rt), rt.destroy());
         }
         for (let rt = 0; rt < et.length; rt++) {
-          const Mt = et[rt], bt = Math.cos(Mt.angle || 0), Ut = Math.sin(Mt.angle || 0), Qt = (Mt.size || 60) / 2, Bt = {
+          const Mt = et[rt], bt = Math.cos(Mt.angle || 0), Ut = Math.sin(Mt.angle || 0), Qt = (Mt.size || 60) / 2, Ot = {
             x: Mt.pos.x + bt * Qt,
             y: Mt.pos.y + Ut * Qt
-          }, Jt = {
+          }, Wt = {
             x: Mt.pos.x - bt * Qt,
             y: Mt.pos.y - Ut * Qt
           }, Yt = ot.current[rt * 2], It = ot.current[rt * 2 + 1];
-          Yt && (Yt.text = "N", Yt.x = Bt.x, Yt.y = Bt.y, Yt.rotation = -(Mt.angle || 0)), It && (It.text = "S", It.x = Jt.x, It.y = Jt.y, It.rotation = -(Mt.angle || 0));
+          Yt && (Yt.text = "N", Yt.x = Ot.x, Yt.y = Ot.y, Yt.rotation = -(Mt.angle || 0)), It && (It.text = "S", It.x = Wt.x, It.y = Wt.y, It.rotation = -(Mt.angle || 0));
         }
       }
       if (v && q.current) {
@@ -26625,7 +26627,7 @@ ${e.stack}` : s;
           }), bt = q.current.toLocal({
             x: xt.view.width,
             y: xt.view.height
-          }), Ut = Math.min(Mt.x, bt.x), Qt = Math.max(Mt.x, bt.x), Bt = Math.min(Mt.y, bt.y), Jt = Math.max(Mt.y, bt.y), Yt = 20, It = q.current.toLocal({
+          }), Ut = Math.min(Mt.x, bt.x), Qt = Math.max(Mt.x, bt.x), Ot = Math.min(Mt.y, bt.y), Wt = Math.max(Mt.y, bt.y), Yt = 20, It = q.current.toLocal({
             x: 0,
             y: 0
           }), ce = q.current.toLocal({
@@ -26635,8 +26637,8 @@ ${e.stack}` : s;
             x: 0,
             y: Yt
           });
-          let Wt = (Math.abs(ce.x - It.x) + Math.abs(le.y - It.y)) / 2;
-          Wt < 5 && (Wt = 5);
+          let Jt = (Math.abs(ce.x - It.x) + Math.abs(le.y - It.y)) / 2;
+          Jt < 5 && (Jt = 5);
           const ge = e.get_magnets(), qt = H.length, re = ge.length, Ae = qt + re * 2, wt = new Float64Array(Ae), vt = new Float64Array(Ae), Ce = new Float64Array(Ae);
           let he = 0;
           for (let ne = 0; ne < qt; ne++) wt[he] = H[ne].pos.x, vt[he] = H[ne].pos.y, Ce[he] = H[ne].charge ?? 0, he++;
@@ -26651,11 +26653,11 @@ ${e.stack}` : s;
             wt[he] = ii.x, vt[he] = ii.y, Ce[he] = Pt.strength || 0, he++, wt[he] = Mn.x, vt[he] = Mn.y, Ce[he] = -(Pt.strength || 0), he++;
           }
           const Tn = Math.min(1 + Ae / 100, 4);
-          Wt *= Tn;
-          const Ci = Math.ceil((Qt - Ut) / Wt) + 1, ys = Math.ceil((Jt - Bt) / Wt) + 1, mi = 300;
+          Jt *= Tn;
+          const Ci = Math.ceil((Qt - Ut) / Jt) + 1, ys = Math.ceil((Wt - Ot) / Jt) + 1, mi = 300;
           if (Ci > mi || ys > mi) {
             const ne = Ci / mi, Pt = ys / mi, Ne = Math.max(ne, Pt);
-            Wt *= Ne;
+            Jt *= Ne;
           }
           let Ki = rt;
           Ae > 200 ? Ki = [
@@ -26681,14 +26683,14 @@ ${e.stack}` : s;
           let qe = true;
           if (Dt.current) {
             const ne = Dt.current;
-            qe = Math.abs(ne.minX - Ut) + Math.abs(ne.maxX - Qt) + Math.abs(ne.minY - Bt) + Math.abs(ne.maxY - Jt) > 1;
+            qe = Math.abs(ne.minX - Ut) + Math.abs(ne.maxX - Qt) + Math.abs(ne.minY - Ot) + Math.abs(ne.maxY - Wt) > 1;
           }
           if (Bn = Bn || qe, Ps || Object.keys(ut.current).length === 0 || Bn) {
-            const ne = {}, Pt = Math.max(2, Math.ceil((Qt - Ut) / Wt) + 1), Ne = Math.max(2, Math.ceil((Jt - Bt) / Wt) + 1), ke = new Array(Pt * Ne).fill(null);
+            const ne = {}, Pt = Math.max(2, Math.ceil((Qt - Ut) / Jt) + 1), Ne = Math.max(2, Math.ceil((Wt - Ot) / Jt) + 1), ke = new Array(Pt * Ne).fill(null);
             for (let Ge = 0; Ge < Ne; Ge++) {
-              const ii = Bt + Ge * Wt, Mn = Ge * Pt;
+              const ii = Ot + Ge * Jt, Mn = Ge * Pt;
               for (let Yn = 0; Yn < Pt; Yn++) {
-                const Un = Ut + Yn * Wt;
+                const Un = Ut + Yn * Jt;
                 let Ri = 0, gi = false;
                 for (let yi = 0; yi < Ae; yi++) {
                   const zi = Un - wt[yi], Di = ii - vt[yi], En = zi * zi + Di * Di;
@@ -26706,7 +26708,7 @@ ${e.stack}` : s;
               for (let Mn = 0; Mn < Ne - 1; Mn++) for (let Yn = 0; Yn < Pt - 1; Yn++) {
                 const Un = ke[Mn * Pt + Yn], Ri = ke[Mn * Pt + Yn + 1], gi = ke[(Mn + 1) * Pt + Yn], yi = ke[(Mn + 1) * Pt + Yn + 1];
                 if (Un === null || Ri === null || gi === null || yi === null) continue;
-                const zi = Ut + Yn * Wt, Di = Bt + Mn * Wt, En = [
+                const zi = Ut + Yn * Jt, Di = Ot + Mn * Jt, En = [
                   Un > Ge,
                   Ri > Ge,
                   gi > Ge,
@@ -26717,29 +26719,29 @@ ${e.stack}` : s;
                 if (En[0] !== En[1]) {
                   const Ni = (Ge - Un) / (Ri - Un);
                   Zi.push({
-                    x: zi + Ni * Wt,
+                    x: zi + Ni * Jt,
                     y: Di
                   });
                 }
                 if (En[2] !== En[3]) {
                   const Ni = (Ge - gi) / (yi - gi);
                   Zi.push({
-                    x: zi + Ni * Wt,
-                    y: Di + Wt
+                    x: zi + Ni * Jt,
+                    y: Di + Jt
                   });
                 }
                 if (En[0] !== En[2]) {
                   const Ni = (Ge - Un) / (gi - Un);
                   Zi.push({
                     x: zi,
-                    y: Di + Ni * Wt
+                    y: Di + Ni * Jt
                   });
                 }
                 if (En[1] !== En[3]) {
                   const Ni = (Ge - Ri) / (yi - Ri);
                   Zi.push({
-                    x: zi + Wt,
-                    y: Di + Ni * Wt
+                    x: zi + Jt,
+                    y: Di + Ni * Jt
                   });
                 }
                 Zi.length >= 2 && ii.push({
@@ -26757,9 +26759,9 @@ ${e.stack}` : s;
               cq: new Float64Array(Ce)
             }, Dt.current = {
               minX: Ut,
-              minY: Bt,
+              minY: Ot,
               maxX: Qt,
-              maxY: Jt
+              maxY: Wt
             };
           }
           for (const ne of Ki) {
@@ -26788,7 +26790,7 @@ ${e.stack}` : s;
           }), Mt = q.current.toLocal({
             x: xt.view.width,
             y: xt.view.height
-          }), bt = Math.min(rt.x, Mt.x), Ut = Math.max(rt.x, Mt.x), Qt = Math.min(rt.y, Mt.y), Bt = Math.max(rt.y, Mt.y), Jt = (Yt, It, ce, le) => {
+          }), bt = Math.min(rt.x, Mt.x), Ut = Math.max(rt.x, Mt.x), Qt = Math.min(rt.y, Mt.y), Ot = Math.max(rt.y, Mt.y), Wt = (Yt, It, ce, le) => {
             let qt = Yt + 20 * Math.cos(ce), re = It + 20 * Math.sin(ce);
             k.setStrokeStyle({
               width: 1,
@@ -26836,17 +26838,17 @@ ${e.stack}` : s;
               const Ce = Math.sqrt(wt * wt + vt * vt);
               if (Ce < 1e-5) break;
               const he = le ? 1 : -1;
-              if (qt += he * 10 * (wt / Ce), re += he * 10 * (vt / Ce), qt < bt || qt > Ut || re < Qt || re > Bt) break;
+              if (qt += he * 10 * (wt / Ce), re += he * 10 * (vt / Ce), qt < bt || qt > Ut || re < Qt || re > Ot) break;
               k.lineTo(qt, re);
             }
             k.stroke();
           };
           for (const Yt of H) for (let ce = 0; ce < 10; ce++) {
             const le = 2 * Math.PI * ce / 10;
-            Jt(Yt.pos.x, Yt.pos.y, le, Yt.charge > 0);
+            Wt(Yt.pos.x, Yt.pos.y, le, Yt.charge > 0);
           }
           for (const Yt of et) {
-            const It = Math.cos(Yt.angle || 0), ce = Math.sin(Yt.angle || 0), le = (Yt.size || 60) / 2, Wt = {
+            const It = Math.cos(Yt.angle || 0), ce = Math.sin(Yt.angle || 0), le = (Yt.size || 60) / 2, Jt = {
               x: Yt.pos.x + It * le,
               y: Yt.pos.y + ce * le
             }, ge = {
@@ -26855,7 +26857,7 @@ ${e.stack}` : s;
             }, qt = 10;
             for (let re = 0; re < qt; re++) {
               const Ae = 2 * Math.PI * re / qt;
-              Jt(Wt.x, Wt.y, Ae, true), Jt(ge.x, ge.y, Ae, false);
+              Wt(Jt.x, Jt.y, Ae, true), Wt(ge.x, ge.y, Ae, false);
             }
           }
         }
@@ -26923,8 +26925,8 @@ ${e.stack}` : s;
             let gt = false, et = null, St = false, xt = null;
             const rt = q.current.toLocal(k.data.global);
             for (let Mt = I.length - 1; Mt >= 0; Mt--) {
-              const bt = I[Mt], Ut = rt.x - bt.pos.x, Qt = rt.y - bt.pos.y, Bt = (bt.size || 60) / 2, Jt = (bt.thickness || 20) / 2;
-              if (Math.abs(Ut) <= Bt + 10 && Math.abs(Qt) <= Jt + 10) {
+              const bt = I[Mt], Ut = rt.x - bt.pos.x, Qt = rt.y - bt.pos.y, Ot = (bt.size || 60) / 2, Wt = (bt.thickness || 20) / 2;
+              if (Math.abs(Ut) <= Ot + 10 && Math.abs(Qt) <= Wt + 10) {
                 St = true, xt = Mt;
                 break;
               }
@@ -34239,7 +34241,7 @@ ${e.stack}` : s;
           y: wt.clientY - vt.top
         }), N(true);
       }
-    }, Bt = (wt, vt) => {
+    }, Ot = (wt, vt) => {
       if (t !== null) switch (wt) {
         case "position":
           typeof vt == "object" && e.update_particle_position(t, vt.x, vt.y);
@@ -34293,30 +34295,30 @@ ${e.stack}` : s;
           break;
       }
       m((Ce) => Ce + 1);
-    }, Jt = (wt) => {
+    }, Wt = (wt) => {
       if (Ut("mass"), Y(wt), ft(""), wt === "" || wt === "-") return;
       const vt = parseFloat(wt);
-      isNaN(vt) ? ft("Please enter a valid number") : vt <= 0 ? ft("Mass must be greater than 0") : Bt("mass", vt);
+      isNaN(vt) ? ft("Please enter a valid number") : vt <= 0 ? ft("Mass must be greater than 0") : Ot("mass", vt);
     }, Yt = (wt) => {
       if (Ut("charge"), W(wt), k(""), wt === "" || wt === "-") return;
       const vt = parseFloat(wt);
-      isNaN(vt) ? k("Please enter a valid number") : Bt("charge", vt);
+      isNaN(vt) ? k("Please enter a valid number") : Ot("charge", vt);
     }, It = (wt) => {
       if (Ut("magnetStrength"), ot(wt), I(""), wt === "" || wt === "-") return;
       const vt = parseFloat(wt);
-      isNaN(vt) ? I("Please enter a valid number") : Bt("magnet_strength", vt);
+      isNaN(vt) ? I("Please enter a valid number") : Ot("magnet_strength", vt);
     }, ce = (wt) => {
       if (Ut("rotation"), ut(wt), wt === "" || wt === "-") return;
       const vt = parseFloat(wt);
       if (!isNaN(vt)) {
         const Ce = vt * Math.PI / 180;
-        Bt("angle", Ce);
+        Ot("angle", Ce);
       }
     }, le = (wt) => {
       if (Ut("radius"), Dt(wt), et(""), wt === "" || wt === "-") return;
       const vt = parseFloat(wt);
-      isNaN(vt) ? et("Please enter a valid number") : vt <= 0 ? et("Radius must be greater than 0") : Bt("radius", vt);
-    }, Wt = (wt, vt) => {
+      isNaN(vt) ? et("Please enter a valid number") : vt <= 0 ? et("Radius must be greater than 0") : Ot("radius", vt);
+    }, Jt = (wt, vt) => {
       if (Ut(`position-${wt}`), At((he) => ({
         ...he,
         [wt]: vt
@@ -34334,7 +34336,7 @@ ${e.stack}` : s;
           x: wt === "x" ? Ce : parseFloat(Nt.x) || 0,
           y: wt === "y" ? Ce : parseFloat(Nt.y) || 0
         };
-        Bt("position", he);
+        Ot("position", he);
       }
     }, ge = (wt, vt) => {
       if (Ut(`velocity-${wt}`), V((he) => ({
@@ -34354,7 +34356,7 @@ ${e.stack}` : s;
           x: wt === "x" ? Ce : parseFloat(Ct.x) || 0,
           y: wt === "y" ? Ce : parseFloat(Ct.y) || 0
         };
-        Bt("velocity", he);
+        Ot("velocity", he);
       }
     };
     if (B.useEffect(() => {
@@ -34443,7 +34445,7 @@ ${e.stack}` : s;
                 j.jsx("input", {
                   type: "text",
                   value: U,
-                  onChange: (wt) => Jt(wt.target.value),
+                  onChange: (wt) => Wt(wt.target.value),
                   onBlur: () => Ut(null),
                   disabled: !S,
                   className: `w-full px-3 py-2.5 sm:py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${X ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"} ${S ? "" : "bg-gray-100 text-gray-400 cursor-not-allowed"}`,
@@ -34592,7 +34594,7 @@ ${e.stack}` : s;
                       j.jsx("input", {
                         type: "checkbox",
                         checked: qt ? v ? v.fixed ?? false : false : g ? g.is_fixed() : false,
-                        onChange: (wt) => Bt("fixed", wt.target.checked),
+                        onChange: (wt) => Ot("fixed", wt.target.checked),
                         className: "w-4 h-4"
                       }),
                       j.jsx("span", {
@@ -34621,7 +34623,7 @@ ${e.stack}` : s;
                     j.jsx("input", {
                       type: "text",
                       value: Nt.x,
-                      onChange: (wt) => Wt("x", wt.target.value),
+                      onChange: (wt) => Jt("x", wt.target.value),
                       onBlur: () => Ut(null),
                       className: `w-full px-3 py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${St.x ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`,
                       placeholder: "X position"
@@ -34646,7 +34648,7 @@ ${e.stack}` : s;
                     j.jsx("input", {
                       type: "text",
                       value: Nt.y,
-                      onChange: (wt) => Wt("y", wt.target.value),
+                      onChange: (wt) => Jt("y", wt.target.value),
                       onBlur: () => Ut(null),
                       className: `w-full px-3 py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${St.y ? "border-red-500 focus:ring-red-500" : "border-gray-300 focus:ring-blue-500"}`,
                       placeholder: "Y position"

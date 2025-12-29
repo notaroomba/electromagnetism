@@ -340,7 +340,10 @@ export default function SandBox({ universe }: SandBoxProps) {
 
         // Draw particle with fade effect
         graphics.circle(particle.pos.x, particle.pos.y, particle.radius);
-        graphics.fill({ color: particle.color, alpha: fadeAlpha });
+        // If particle has no net charge, render it grey to indicate neutrality
+        const hasCharge = (particle.charge ?? 0) !== 0;
+        const displayColor = hasCharge ? particle.color : 0x9ca3af; // gray-400
+        graphics.fill({ color: displayColor, alpha: fadeAlpha });
       }
 
       // Draw magnets
