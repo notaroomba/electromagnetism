@@ -206,66 +206,40 @@ export default function SandBox({ universe }: SandBoxProps) {
             ]);
             graphics.fill({ color: 0x4a5568, alpha: 1 });
           }
+        }
 
-          // Draw electric force/acceleration vector (purple)
-          // Compute net electrostatic acceleration on this particle
-          const k = universe.get_coulomb_constant();
-          let accX = 0;
-          let accY = 0;
-          const qi = particle.charge || 0;
-          const mi = particle.mass || 1;
-
-          for (let j = 0; j < particles.length; j++) {
-            if (j === i) continue;
-            const pj = particles[j];
-            const qj = pj.charge || 0;
-            const rx = particle.pos.x - pj.pos.x;
-            const ry = particle.pos.y - pj.pos.y;
-            const distSq = rx * rx + ry * ry;
-            const dist = Math.sqrt(distSq);
-            if (dist > 1e-6) {
-              const forceMag = (k * qi * qj) / distSq;
-              const accMag = forceMag / mi;
-              accX += accMag * (rx / dist);
-              accY += accMag * (ry / dist);
-            }
-          }
-
-          const forceScale = 0.5; // visual scaling for clarity (reduced)
-          const eX = accX * forceScale;
-          const eY = accY * forceScale;
-
-          if (Math.hypot(eX, eY) > 0.01) {
+        // Velocity vectors for magnets (green)
+        const magnets = (universe as any).get_magnets() as any[];
+        for (let i = 0; i < magnets.length; i++) {
+          const m = magnets[i];
+          const vmag = Math.sqrt(m.vel.x * m.vel.x + m.vel.y * m.vel.y);
+          if (vmag > 0.01) {
+            const velScale = 2;
+            const velX = m.vel.x * velScale;
+            const velY = m.vel.y * velScale;
             graphics.setStrokeStyle({
               width: 3,
-              color: 0x8b5cf6,
-              alpha: 0.9,
+              color: 0x10b981,
+              alpha: 1,
               cap: "round",
               join: "round",
             });
-            graphics.moveTo(particle.pos.x, particle.pos.y);
-            graphics.lineTo(particle.pos.x + eX, particle.pos.y + eY);
+            graphics.moveTo(m.pos.x, m.pos.y);
+            graphics.lineTo(m.pos.x + velX, m.pos.y + velY);
             graphics.stroke();
 
             // Arrowhead
             const arrowSize = 12;
             const arrowAngle = Math.PI / 6;
-            const angle = Math.atan2(eY, eX);
-            const tipX = particle.pos.x + eX;
-            const tipY = particle.pos.y + eY;
-
+            const angle = Math.atan2(velY, velX);
+            const tipX = m.pos.x + velX;
+            const tipY = m.pos.y + velY;
             graphics.poly([
               { x: tipX, y: tipY },
-              {
-                x: tipX - Math.cos(angle - arrowAngle) * arrowSize,
-                y: tipY - Math.sin(angle - arrowAngle) * arrowSize,
-              },
-              {
-                x: tipX - Math.cos(angle + arrowAngle) * arrowSize,
-                y: tipY - Math.sin(angle + arrowAngle) * arrowSize,
-              },
+              { x: tipX - Math.cos(angle - arrowAngle) * arrowSize, y: tipY - Math.sin(angle - arrowAngle) * arrowSize },
+              { x: tipX - Math.cos(angle + arrowAngle) * arrowSize, y: tipY - Math.sin(angle + arrowAngle) * arrowSize },
             ]);
-            graphics.fill({ color: 0x8b5cf6, alpha: 0.9 });
+            graphics.fill({ color: 0x10b981, alpha: 1 });
           }
         }
       }
