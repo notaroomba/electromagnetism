@@ -62,8 +62,8 @@ export function SimulationProvider({
   const [isUniverseEditorOpen, setIsUniverseEditorOpen] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [showVelocityVectors, setShowVelocityVectors] = useState(false);
-  const [showEquipotentialLines, setShowEquipotentialLines] = useState(true);
-  const [showFieldLines, setShowFieldLines] = useState(false);
+  const [showEquipotentialLines, setShowEquipotentialLines] = useState(false);
+  const [showFieldLines, setShowFieldLines] = useState(true);
   const [viewQuadtree, setViewQuadtree] = useState(false);
   const [isPaused, setIsPaused] = useState(universe.get_is_paused());
   const [fps, setFps] = useState(0);

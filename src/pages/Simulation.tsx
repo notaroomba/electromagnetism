@@ -29,7 +29,6 @@ const PixiCanvas = memo(function PixiCanvas({
   universe: Universe;
 }) {
   const [width, height] = useWindowDimension();
-
   return (
     <Application
       background={"#ffffff"}
