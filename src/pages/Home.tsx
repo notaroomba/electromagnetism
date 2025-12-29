@@ -50,18 +50,15 @@ export default function Home() {
     const universe = universeRef.current;
     universe.set_coulomb_constant(8.9875517923e3);
     universe.set_default_charge(1.0);
-    // auto-fade feature removed; no explicit initialization necessary
 
     // Add random particles in a loop
     const addRandomParticles = () => {
       const count = universe.get_particles().length;
       if (count < 10) {
         for (let i = 0; i < 1; i++) {
-          const x = Math.random() * width - width / 2;
-          const y = 0;
-          const vx = (Math.random() - 0.5) * 100;
-          const vy = Math.random() * 50 + 50;
-          universe.add_particle_simple(x, y, vx, vy, Math.random() * 10 - 5);
+          const x = Math.random() * width;
+          const y = Math.random() * 200 - 100;
+          universe.add_particle_simple(x, y, 0.0, 0.0, Math.random() * 40 - 20);
         }
       }
     };

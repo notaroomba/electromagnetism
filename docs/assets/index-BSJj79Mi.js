@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/browserAll-Bs_ayjwv.js","assets/webworkerAll-BAN48U4R.js","assets/colorToUniform-BXaCBwVl.js","assets/WebGPURenderer-CAq-Hrv3.js","assets/SharedSystems-C_jsm2hV.js","assets/WebGLRenderer-CI1m9-6E.js"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/browserAll-DhFS5zqI.js","assets/webworkerAll-BqMykOQa.js","assets/colorToUniform-BXaCBwVl.js","assets/WebGPURenderer-D5nGGIFT.js","assets/SharedSystems-BNdaFFQp.js","assets/WebGLRenderer-KkgJTFY0.js"])))=>i.map(i=>d[i]);
 let tg, T2, Es, gs, Xs, qe, Ou, Qd, Wa, KS, Px, Ad, jC, xe, ZC, kd, Me, On, E_, QC, cd, w_, ln, f3, Qx, Ty, Kx, pC, Vl, ni, fC, XS, M2, Ae, dn, y3, q3, U3, r5, u5, p5, g5, y5, C2, Ic, eg, B1, Bd, v3, Jc, V2, c1, o1, Ud, UA, V1, Y2, N3, Nd, Qm, Cs, u1, R3, E0, b2, t2, Ia, p2, j_, l5, o5, f5, m5, FA, _g, We, BA, A0, ms, v5, ga, LS;
 let __tla = (async () => {
   var _a2, _b2;
@@ -10366,7 +10366,7 @@ Please change the parent <Route path="${O}"> to <Route path="${O === "/" ? "*" :
     },
     test: () => true,
     load: async () => {
-      await $m(() => import("./browserAll-Bs_ayjwv.js").then(async (m) => {
+      await $m(() => import("./browserAll-DhFS5zqI.js").then(async (m) => {
         await m.__tla;
         return m;
       }), __vite__mapDeps([0,1,2]));
@@ -10380,7 +10380,7 @@ Please change the parent <Route path="${O}"> to <Route path="${O === "/" ? "*" :
     },
     test: () => typeof self < "u" && self.WorkerGlobalScope !== void 0,
     load: async () => {
-      await $m(() => import("./webworkerAll-BAN48U4R.js").then(async (m) => {
+      await $m(() => import("./webworkerAll-BqMykOQa.js").then(async (m) => {
         await m.__tla;
         return m;
       }), __vite__mapDeps([1,2]));
@@ -15399,7 +15399,7 @@ ${e}`;
       const h = t[c];
       if (h === "webgpu" && await m3()) {
         const { WebGPURenderer: d } = await $m(async () => {
-          const { WebGPURenderer: m } = await import("./WebGPURenderer-CAq-Hrv3.js").then(async (m2) => {
+          const { WebGPURenderer: m } = await import("./WebGPURenderer-D5nGGIFT.js").then(async (m2) => {
             await m2.__tla;
             return m2;
           });
@@ -15414,7 +15414,7 @@ ${e}`;
         break;
       } else if (h === "webgl" && p3(e.failIfMajorPerformanceCaveat ?? T2.defaultOptions.failIfMajorPerformanceCaveat)) {
         const { WebGLRenderer: d } = await $m(async () => {
-          const { WebGLRenderer: m } = await import("./WebGLRenderer-CI1m9-6E.js").then(async (m2) => {
+          const { WebGLRenderer: m } = await import("./WebGLRenderer-KkgJTFY0.js").then(async (m2) => {
             await m2.__tla;
             return m2;
           });
@@ -26326,7 +26326,7 @@ ${e.stack}` : s;
     return e;
   }
   function L0({ children: e, universe: t }) {
-    const [n, s] = B.useState(0), [l, c] = B.useState(null), [h, d] = B.useState(null), [m, g] = B.useState(false), [v, S] = B.useState(false), [T, M] = B.useState(false), [C, N] = B.useState(false), [A, D] = B.useState(false), [O, U] = B.useState(true), [Y, W] = B.useState(false), [F, q] = B.useState(t.get_is_paused()), [rt, ft] = B.useState(0);
+    const [n, s] = B.useState(0), [l, c] = B.useState(null), [h, d] = B.useState(null), [m, g] = B.useState(false), [v, S] = B.useState(false), [T, M] = B.useState(false), [C, N] = B.useState(false), [A, D] = B.useState(true), [O, U] = B.useState(false), [Y, W] = B.useState(false), [F, q] = B.useState(t.get_is_paused()), [rt, ft] = B.useState(0);
     return B.useEffect(() => {
       t.set_is_paused(F), s((ot) => ot + 1);
     }, [
@@ -33140,8 +33140,8 @@ ${e.stack}` : s;
       s.set_coulomb_constant(8987.5517923), s.set_default_charge(1);
       const l = () => {
         if (s.get_particles().length < 10) for (let d = 0; d < 1; d++) {
-          const m = Math.random() * e - e / 2, g = 0, v = (Math.random() - 0.5) * 100, S = Math.random() * 50 + 50;
-          s.add_particle_simple(m, g, v, S, Math.random() * 10 - 5);
+          const m = Math.random() * e, g = Math.random() * 200 - 100;
+          s.add_particle_simple(m, g, 0, 0, Math.random() * 40 - 20);
         }
       };
       l();
