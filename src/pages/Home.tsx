@@ -1,29 +1,60 @@
 import { Link } from "react-router-dom";
-import { Application } from "@pixi/react";
+import { Application, extend } from "@pixi/react";
 import SandBox from "../components/SandBox";
 import { useWindowDimension } from "../utils/useWindowDimension";
 import Transitions from "../utils/Transitions";
 import { Universe } from "physics-engine";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, memo } from "react";
 import { Viewport } from "../utils/Viewport";
-import { SimulationProvider } from "../contexts/SimulationContext";
+import {
+  SimulationProvider,
+  useSimulation,
+} from "../contexts/SimulationContext";
+import { Container } from "pixi.js";
 
-function HomeContent({ universe }: { universe: Universe }) {
+extend({ Container });
+
+// Memoize the canvas to prevent re-renders from context changes
+const PixiCanvas = memo(function PixiCanvas({
+  universe,
+}: {
+  universe: Universe;
+}) {
   const [width, height] = useWindowDimension();
 
   return (
+    <Application
+      background={"#ffffff"}
+      width={width}
+      height={height}
+      className="overflow-hidden fixed top-0 left-0"
+      antialias
+      onInit={(app) => {
+        // Store app reference globally for viewport access
+        (window as any).pixiApp = app;
+      }}
+    >
+      <Viewport>
+        <SandBox universe={universe} />
+      </Viewport>
+    </Application>
+  );
+});
+
+function HomeContent({ universe }: { universe: Universe }) {
+  const {
+    setShowEquipotentialLines,
+    setShowFieldLines,
+    showEquipotentialLines,
+    showFieldLines,
+  } = useSimulation();
+  useEffect(() => {
+    setShowEquipotentialLines(true);
+    setShowFieldLines(true);
+  }, [showEquipotentialLines, showFieldLines]);
+  return (
     <Transitions>
-      <Application
-        background={"#ffffff"}
-        width={width}
-        height={height}
-        className="overflow-hidden fixed top-0 left-0"
-        antialias
-      >
-        <Viewport>
-          <SandBox universe={universe} />
-        </Viewport>
-      </Application>
+      <PixiCanvas universe={universe} />
       <div className="fixed -translate-x-1/2 -translate-y-1/3 left-1/2 top-1/3 z-10">
         <h1 className="text-4xl md:text-6xl font-semibold mb-8 text-gray-900">
           Electromagnetism
@@ -48,6 +79,7 @@ export default function Home() {
   useEffect(() => {
     // Initialize universe
     const universe = universeRef.current;
+    // Use physical Coulomb constant by default
     universe.set_coulomb_constant(8.9875517923e3);
     universe.set_default_charge(1.0);
 
@@ -56,7 +88,7 @@ export default function Home() {
       const count = universe.get_particles().length;
       if (count < 10) {
         for (let i = 0; i < 1; i++) {
-          const x = Math.random() * width;
+          const x = Math.random() * width - width / 2;
           const y = Math.random() * 200;
           universe.add_particle_simple(x, y, 0.0, 0.0, Math.random() * 40 - 20);
         }

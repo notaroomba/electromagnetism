@@ -465,7 +465,6 @@ export default function SandBox({ universe }: SandBoxProps) {
           }
         }
       }
-
       // Draw equipotential contour lines if enabled
       if (showEquipotentialLines && pixiContainerRef.current) {
         const app = (window as any).pixiApp;
