@@ -7,8 +7,6 @@ import {
   Calculator,
   ChartScatter,
   Scale,
-  Plus,
-  Minus,
   Edit3,
   Sparkles,
   Maximize2,
@@ -17,8 +15,6 @@ import {
   Grid3x3,
   Navigation,
   Settings,
-  Circle,
-  Rows,
   Shield,
   Nfc,
   CircleDashed,
@@ -51,7 +47,6 @@ export default function SettingsBar() {
     universe.get_implementation()
   );
   const [showTrails, setShowTrails] = useState(universe.get_show_trails());
-  const [particleCount, setParticleCount] = useState(1);
   const [useQuadtree, setUseQuadtree] = useState(universe.get_use_quadtree());
   const [useMass, setUseMass] = useState(universe.get_mass_calculation());
   const [quadtreeTheta, setQuadtreeTheta] = useState(
@@ -61,8 +56,6 @@ export default function SettingsBar() {
     universe.get_collisions_enabled()
   );
 
-  const addIntervalRef = useRef<number | null>(null);
-  const removeIntervalRef = useRef<number | null>(null);
   const previousVelocityVectorsRef = useRef(showVelocityVectors);
   const quadtreeManuallyDisabledRef = useRef(false);
 
@@ -188,62 +181,7 @@ export default function SettingsBar() {
     }
   };
 
-  const addParticles = (count: number) => {
-    for (let i = 0; i < count; i++) {
-      // Add particles with random velocities and positions
-      universe.add_particle_simple(
-        Math.random() * 200 - 100,
-        Math.random() * 200 - 100,
-        Math.random() * 50 - 25,
-        Math.random() * 50 - 25,
-        Math.random() * 50 - 25
-      );
-    }
-    setRender((prev) => prev + 1);
-  };
-
-  const removeParticles = (count: number) => {
-    for (let i = 0; i < count; i++) {
-      universe.pop_particle();
-    }
-    setRender((prev) => prev + 1);
-  };
-
-  const handleAddMouseDown = () => {
-    addParticles(particleCount);
-    addIntervalRef.current = setInterval(() => {
-      addParticles(particleCount);
-    }, 200);
-  };
-
-  const handleAddMouseUp = () => {
-    if (addIntervalRef.current) {
-      clearInterval(addIntervalRef.current);
-      addIntervalRef.current = null;
-    }
-  };
-
-  const handleRemoveMouseDown = () => {
-    removeParticles(particleCount);
-    removeIntervalRef.current = setInterval(() => {
-      removeParticles(particleCount);
-    }, 200);
-  };
-
-  const handleRemoveMouseUp = () => {
-    if (removeIntervalRef.current) {
-      clearInterval(removeIntervalRef.current);
-      removeIntervalRef.current = null;
-    }
-  };
-
-  // Cleanup intervals on unmount
-  useEffect(() => {
-    return () => {
-      if (addIntervalRef.current) clearInterval(addIntervalRef.current);
-      if (removeIntervalRef.current) clearInterval(removeIntervalRef.current);
-    };
-  }, []);
+  // Add/remove helpers moved to SideBar
 
   return (
     <div className="flex flex-col items-center gap-2">
@@ -526,39 +464,6 @@ export default function SettingsBar() {
               title="Reset View"
             >
               <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
-
-          {/* Add/Remove Particles Controls */}
-          <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4">
-            <button
-              onMouseDown={handleAddMouseDown}
-              onMouseUp={handleAddMouseUp}
-              onMouseLeave={handleAddMouseUp}
-              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100`}
-              title={`Add ${particleCount} Particle(s) (Hold to add continuously)`}
-            >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <input
-              type="number"
-              value={particleCount}
-              onChange={(e) =>
-                setParticleCount(Math.max(1, parseInt(e.target.value) || 1))
-              }
-              min="1"
-              max="100"
-              className="w-10 sm:w-14 px-1 py-0.5 text-xs sm:text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-              title="Number of particles to add/remove"
-            />
-            <button
-              onMouseDown={handleRemoveMouseDown}
-              onMouseUp={handleRemoveMouseUp}
-              onMouseLeave={handleRemoveMouseUp}
-              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100`}
-              title={`Remove ${particleCount} Particle(s) (Hold to remove continuously)`}
-            >
-              <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
         </div>

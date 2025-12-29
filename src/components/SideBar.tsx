@@ -1,57 +1,82 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useSimulation } from "../contexts/SimulationContext";
-import { Atom, CircleDashed } from "lucide-react";
+import { Atom, Magnet, Plus, Minus } from "lucide-react";
+
+type AddType = "particle" | "magnet";
 
 export default function SideBar() {
-  const {
-    universe,
-    render,
-    setRender,
-    setIsPropertyEditorOpen,
-    isPropertyEditorOpen,
-    isUniverseEditorOpen,
-    setIsUniverseEditorOpen,
-    showMoreInfo,
-    setShowMoreInfo,
-    showEquipotentialLines,
-    setShowEquipotentialLines,
-    showFieldLines,
-    setShowFieldLines,
-    showVelocityVectors,
-    setShowVelocityVectors,
-    isPaused,
-    setIsPaused,
-  } = useSimulation();
-  const [changeCount, setChangeCount] = useState(1);
+  const { universe, setRender } = useSimulation();
+  const [addType, setAddType] = useState<AddType>("particle");
+  const [addCount, setAddCount] = useState(1);
+  const [addFixed, setAddFixed] = useState(false);
+  const [addMass, setAddMass] = useState(universe.get_default_mass());
+  const [addCharge, setAddCharge] = useState(universe.get_default_charge());
+  const [addRadius, setAddRadius] = useState(10);
+  const [addMagnetStrength, setAddMagnetStrength] = useState(20);
+
+  // Reuse refs for continuous add/remove
   const addIntervalRef = useRef<number | null>(null);
   const removeIntervalRef = useRef<number | null>(null);
 
+  // When switching to magnet default it to fixed
+  const switchAddType = (t: AddType) => {
+    setAddType(t);
+    if (t === "magnet") {
+      setAddFixed(true);
+    }
+  };
+
   const addParticles = (count: number) => {
     for (let i = 0; i < count; i++) {
-      // Add particles with random velocities and positions
-      universe.add_particle_simple(
-        Math.random() * 200 - 100,
-        Math.random() * 200 - 100,
-        Math.random() * 50 - 25,
-        Math.random() * 50 - 25,
-        Math.random() * 50 - 25
-      );
+      // Add particles using explicit API to set mass/radius/charge
+      const px =
+        Math.random() * universe.get_spawn_range() -
+        universe.get_spawn_range() / 2;
+      const py =
+        Math.random() * universe.get_spawn_range() -
+        universe.get_spawn_range() / 2;
+      const vx = Math.random() * 50 - 25;
+      const vy = Math.random() * 50 - 25;
+      // color 0 lets the engine choose based on charge sign
+      universe.add_particle(px, py, vx, vy, addRadius, addMass, 0, addCharge);
+      // Apply fixed property if requested
+      if (addFixed) {
+        (universe as any).update_particle_fixed(
+          (universe.get_particle_count() as number) - 1,
+          true
+        );
+      }
     }
     setRender((prev) => prev + 1);
   };
 
-  const removeParticles = (count: number) => {
+  const addMagnets = (count: number) => {
     for (let i = 0; i < count; i++) {
-      universe.pop_particle();
+      const px =
+        Math.random() * universe.get_spawn_range() -
+        universe.get_spawn_range() / 2;
+      const py =
+        Math.random() * universe.get_spawn_range() -
+        universe.get_spawn_range() / 2;
+      // Use the wasm API added for magnets
+      (universe as any).add_magnet_simple(px, py, addMagnetStrength);
+      // magnets are created fixed by default in the wasm helper
     }
     setRender((prev) => prev + 1);
   };
 
   const handleAddMouseDown = () => {
-    addParticles(changeCount);
-    addIntervalRef.current = setInterval(() => {
-      addParticles(changeCount);
-    }, 200);
+    if (addType === "particle") {
+      addParticles(addCount);
+      addIntervalRef.current = setInterval(() => {
+        addParticles(addCount);
+      }, 200);
+    } else {
+      addMagnets(addCount);
+      addIntervalRef.current = setInterval(() => {
+        addMagnets(addCount);
+      }, 200);
+    }
   };
 
   const handleAddMouseUp = () => {
@@ -62,9 +87,19 @@ export default function SideBar() {
   };
 
   const handleRemoveMouseDown = () => {
-    removeParticles(changeCount);
+    if (addType === "particle") {
+      for (let i = 0; i < addCount; i++) universe.pop_particle();
+    } else {
+      for (let i = 0; i < addCount; i++) (universe as any).pop_magnet();
+    }
+    setRender((prev) => prev + 1);
     removeIntervalRef.current = setInterval(() => {
-      removeParticles(changeCount);
+      if (addType === "particle") {
+        for (let i = 0; i < addCount; i++) universe.pop_particle();
+      } else {
+        for (let i = 0; i < addCount; i++) (universe as any).pop_magnet();
+      }
+      setRender((prev) => prev + 1);
     }, 200);
   };
 
@@ -75,21 +110,124 @@ export default function SideBar() {
     }
   };
 
+  // Cleanup intervals on unmount
+  useEffect(() => {
+    return () => {
+      if (addIntervalRef.current) clearInterval(addIntervalRef.current);
+      if (removeIntervalRef.current) clearInterval(removeIntervalRef.current);
+    };
+  }, []);
+
   return (
     <div className="w-fit max-w-full py-2 px-2 sm:px-4 bg-white border pointer-events-auto border-gray-200 rounded-lg shadow-xl overflow-x-auto">
-      <div className="flex flex-col items-center justify-center divide-x divide-gray-300 flex-wrap sm:flex-nowrap gap-y-2">
-        <button
-          onClick={() => {
-            setIsPaused(true);
-            addParticles(changeCount);
-          }}
-          className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
-            showEquipotentialLines ? "bg-blue-100" : "hover:bg-gray-100"
-          }`}
-          title={showEquipotentialLines ? "Add Particle" : "Add Particle"}
-        >
-          <Atom className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
+      <div className="flex flex-col items-center justify-center divide-y divide-gray-300 gap-y-2">
+        {/* Type selection */}
+        <div className="flex items-center gap-2 py-2">
+          <button
+            onClick={() => switchAddType("particle")}
+            className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+              addType === "particle" ? "bg-blue-100" : "hover:bg-gray-100"
+            }`}
+            title="Add Atom"
+          >
+            <Atom className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+          <button
+            onClick={() => switchAddType("magnet")}
+            className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+              addType === "magnet" ? "bg-blue-100" : "hover:bg-gray-100"
+            }`}
+            title="Add Magnet"
+          >
+            <Magnet className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
+
+        {/* Controls */}
+        <div className="flex flex-col items-center gap-2 py-2 px-1">
+          <div className="flex items-center gap-2">
+            <button
+              onMouseDown={handleAddMouseDown}
+              onMouseUp={handleAddMouseUp}
+              onMouseLeave={handleAddMouseUp}
+              className="p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100"
+              title={`Add ${addCount} item(s) (Hold to add continuously)`}
+            >
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+
+            <input
+              type="number"
+              value={addCount}
+              onChange={(e) =>
+                setAddCount(Math.max(1, parseInt(e.target.value) || 1))
+              }
+              min={1}
+              max={100}
+              className="w-12 px-1 py-0.5 text-xs sm:text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              title="Number of items to add/remove"
+            />
+
+            <button
+              onMouseDown={handleRemoveMouseDown}
+              onMouseUp={handleRemoveMouseUp}
+              onMouseLeave={handleRemoveMouseUp}
+              className="p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100"
+              title={`Remove ${addCount} item(s) (Hold to remove continuously)`}
+            >
+              <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+
+          <div className="flex flex-col gap-2 w-full px-1">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={addFixed}
+                onChange={(e) => setAddFixed(e.target.checked)}
+              />
+              <span className="text-sm">Fixed</span>
+            </label>
+
+            <label className="text-xs">Mass</label>
+            <input
+              type="number"
+              value={addMass}
+              onChange={(e) => setAddMass(parseFloat(e.target.value) || 0)}
+              className="w-full px-2 py-1 text-sm border rounded"
+            />
+
+            <label className="text-xs">Charge</label>
+            <input
+              type="number"
+              value={addCharge}
+              onChange={(e) => setAddCharge(parseFloat(e.target.value) || 0)}
+              className="w-full px-2 py-1 text-sm border rounded"
+            />
+
+            <label className="text-xs">Radius</label>
+            <input
+              type="number"
+              value={addRadius}
+              onChange={(e) => setAddRadius(parseFloat(e.target.value) || 1)}
+              className="w-full px-2 py-1 text-sm border rounded"
+            />
+
+            {addType === "magnet" && (
+              <>
+                <label className="text-xs">Magnet Strength</label>
+                <input
+                  type="number"
+                  value={addMagnetStrength}
+                  onChange={(e) =>
+                    setAddMagnetStrength(parseFloat(e.target.value) || 0)
+                  }
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+              </>
+            )}
+          </div>
+        </div>
       </div>
     </div>
   );

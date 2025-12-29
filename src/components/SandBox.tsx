@@ -1,12 +1,13 @@
 import { extend, useTick } from "@pixi/react";
 import type { Particle, Trail, Universe } from "physics-engine";
-import { Container, Graphics } from "pixi.js";
-import { useCallback, useRef, useState } from "react";
+import { Container, Graphics, Text } from "pixi.js";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useSimulation } from "../contexts/SimulationContext";
 
 extend({
   Container,
   Graphics,
+  Text,
 });
 
 interface SandBoxProps {
@@ -17,6 +18,8 @@ export default function SandBox({ universe }: SandBoxProps) {
   const {
     selectedParticleIndex,
     setSelectedParticleIndex,
+    selectedMagnetIndex,
+    setSelectedMagnetIndex,
     setIsPropertyEditorOpen,
     render,
     setRender,
@@ -30,9 +33,15 @@ export default function SandBox({ universe }: SandBoxProps) {
   const [hoveredParticleIndex, setHoveredParticleIndex] = useState<
     number | null
   >(null);
+  const [hoveredMagnetIndex, setHoveredMagnetIndex] = useState<number | null>(
+    null
+  );
   const [isDraggingParticle, setIsDraggingParticle] = useState(false);
+  const [isDraggingMagnet, setIsDraggingMagnet] = useState(false);
   const fpsCounterRef = useRef({ frames: 0, lastTime: performance.now() });
   const pixiContainerRef = useRef<any>(null);
+  const magnetTextsRef = useRef<any[]>([]);
+  const magnetDragOffsetRef = useRef<{ x: number; y: number } | null>(null);
   const equipSegmentsRef = useRef<
     Record<number, Array<{ x1: number; y1: number; x2: number; y2: number }>>
   >({});
@@ -61,19 +70,58 @@ export default function SandBox({ universe }: SandBoxProps) {
     universe.set_is_paused(true);
   };
 
+  const handleMagnetDragStart = (index: number, event: any) => {
+    event.stopPropagation();
+    setSelectedMagnetIndex(index);
+    setIsDraggingMagnet(true);
+    universe.set_is_paused(true);
+    // Remember offset so the magnet doesn't snap to cursor
+    if (pixiContainerRef.current) {
+      const localPos = pixiContainerRef.current.toLocal(event.data.global);
+      const magnets = (universe as any).get_magnets() as any[];
+      const m = magnets[index];
+      if (m) {
+        magnetDragOffsetRef.current = {
+          x: localPos.x - m.pos.x,
+          y: localPos.y - m.pos.y,
+        };
+      } else {
+        magnetDragOffsetRef.current = null;
+      }
+    }
+  };
+
   const handleParticleDrag = (index: number, event: any) => {
     if (!isDraggingParticle || !pixiContainerRef.current) return;
 
     const localPos = pixiContainerRef.current.toLocal(event.global);
 
     // Update the particle's position
-    universe.update_particle_position(index, localPos.x, localPos.y);
+    (universe as any).update_particle_position(index, localPos.x, localPos.y);
+    setRender((prev) => prev + 1);
+  };
+
+  const handleMagnetDrag = (index: number, event: any) => {
+    if (!isDraggingMagnet || !pixiContainerRef.current) return;
+
+    const localPos = pixiContainerRef.current.toLocal(event.global);
+    const offset = magnetDragOffsetRef.current || { x: 0, y: 0 };
+    (universe as any).update_magnet_position(
+      index,
+      localPos.x - offset.x,
+      localPos.y - offset.y
+    );
     setRender((prev) => prev + 1);
   };
 
   const handleParticleDragEnd = () => {
     setIsDraggingParticle(false);
     // Don't automatically resume - let user control pause state
+  };
+
+  const handleMagnetDragEnd = () => {
+    setIsDraggingMagnet(false);
+    magnetDragOffsetRef.current = null;
   };
 
   const drawCallback = useCallback(
@@ -235,21 +283,152 @@ export default function SandBox({ universe }: SandBoxProps) {
 
         // Draw selection/hover highlight (only when paused)
         if ((isSelected || isHovered) && isPaused) {
+          const highlightColor = 0xff8a00; // orange
           graphics.circle(particle.pos.x, particle.pos.y, particle.radius + 8);
-          graphics.fill({
-            color: isSelected ? 0xffffff : 0xffaa00,
-            alpha: 0.1 * fadeAlpha,
-          });
+          graphics.fill({ color: highlightColor, alpha: 0.14 * fadeAlpha });
           graphics.stroke({
             width: 3,
-            color: isSelected ? 0xffffff : 0xffaa00,
-            alpha: (isSelected ? 0.6 : 0.6) * fadeAlpha,
+            color: highlightColor,
+            alpha: 0.9 * fadeAlpha,
           });
         }
 
         // Draw particle with fade effect
         graphics.circle(particle.pos.x, particle.pos.y, particle.radius);
         graphics.fill({ color: particle.color, alpha: fadeAlpha });
+      }
+
+      // Draw magnets
+      const magnets = (universe as any).get_magnets() as any[];
+      for (let i = 0; i < magnets.length; i++) {
+        const m = magnets[i];
+        const cx = m.pos.x;
+        const cy = m.pos.y;
+        const angle = m.angle || 0;
+        const halfW = (m.size || 60) / 2;
+        const halfH = (m.thickness || 20) / 2;
+
+        const ux = Math.cos(angle);
+        const uy = Math.sin(angle);
+        const vx = -uy;
+        const vy = ux;
+
+        const p1 = {
+          x: cx + ux * halfW + vx * halfH,
+          y: cy + uy * halfW + vy * halfH,
+        };
+        const p2 = {
+          x: cx - ux * halfW + vx * halfH,
+          y: cy - uy * halfW + vy * halfH,
+        };
+        const p3 = {
+          x: cx - ux * halfW - vx * halfH,
+          y: cy - uy * halfW - vy * halfH,
+        };
+        const p4 = {
+          x: cx + ux * halfW - vx * halfH,
+          y: cy + uy * halfW - vy * halfH,
+        };
+
+        const mtop = { x: cx + vx * halfH, y: cy + vy * halfH };
+        const mbottom = { x: cx - vx * halfH, y: cy - vy * halfH };
+
+        // North half (positive ux direction) - red
+        graphics.beginFill(m.color_north || 0xff0000, 1);
+        graphics.poly([
+          { x: p1.x, y: p1.y },
+          { x: mtop.x, y: mtop.y },
+          { x: mbottom.x, y: mbottom.y },
+          { x: p4.x, y: p4.y },
+        ]);
+        graphics.fill();
+
+        // South half (negative ux direction) - blue
+        graphics.beginFill(m.color_south || 0x0000ff, 1);
+        graphics.poly([
+          { x: p2.x, y: p2.y },
+          { x: p3.x, y: p3.y },
+          { x: mbottom.x, y: mbottom.y },
+          { x: mtop.x, y: mtop.y },
+        ]);
+        graphics.fill();
+
+        // Draw outline (selected/hovered)
+        if (
+          (selectedMagnetIndex === i || hoveredMagnetIndex === i) &&
+          universe.get_is_paused()
+        ) {
+          const highlightColor = 0xff8a00; // orange
+          graphics.setStrokeStyle({
+            width: 3,
+            color: highlightColor,
+            alpha: 0.95,
+          });
+          graphics.moveTo(p1.x, p1.y);
+          graphics.lineTo(p2.x, p2.y);
+          graphics.lineTo(p3.x, p3.y);
+          graphics.lineTo(p4.x, p4.y);
+          graphics.lineTo(p1.x, p1.y);
+          graphics.stroke();
+        }
+
+        // We'll render 'N' and 'S' labels using PIXI.Text objects managed separately
+      }
+
+      // Manage magnet text labels (N/S)
+      const container = pixiContainerRef.current;
+      if (container) {
+        const desiredTextCount = magnets.length * 2;
+        // Create missing text objects
+        while (magnetTextsRef.current.length < desiredTextCount) {
+          const idx = magnetTextsRef.current.length;
+          const label = new Text(idx % 2 === 0 ? "N" : "S", {
+            fontSize: 14,
+            fill: "#ffffff",
+            stroke: "#000000",
+            strokeThickness: 3,
+            align: "center",
+          } as any);
+          label.anchor.set(0.5);
+          // because container is y-flipped, flip text back
+          label.scale.y = -1;
+          container.addChild(label);
+          magnetTextsRef.current.push(label);
+        }
+
+        // Remove extra texts
+        while (magnetTextsRef.current.length > magnets.length * 2) {
+          const t = magnetTextsRef.current.pop();
+          if (t) {
+            container.removeChild(t);
+            t.destroy();
+          }
+        }
+
+        // Update positions and rotation
+        for (let i = 0; i < magnets.length; i++) {
+          const m = magnets[i];
+          const ux = Math.cos(m.angle || 0);
+          const uy = Math.sin(m.angle || 0);
+          const half = (m.size || 60) / 2;
+          const north = { x: m.pos.x + ux * half, y: m.pos.y + uy * half };
+          const south = { x: m.pos.x - ux * half, y: m.pos.y - uy * half };
+
+          const nText = magnetTextsRef.current[i * 2];
+          const sText = magnetTextsRef.current[i * 2 + 1];
+          if (nText) {
+            nText.text = "N";
+            nText.x = north.x;
+            nText.y = north.y;
+            nText.rotation = -(m.angle || 0);
+          }
+          if (sText) {
+            sText.text = "S";
+            sText.x = south.x;
+            sText.y = south.y;
+            sText.rotation = -(m.angle || 0);
+          }
+        }
       }
 
       // Draw equipotential contour lines if enabled
@@ -287,20 +466,44 @@ export default function SandBox({ universe }: SandBoxProps) {
             2;
           if (stepWorld < 5) stepWorld = 5; // avoid extremely fine grids when zoomed in
 
-          // Precompute particle arrays to speed inner loops
-          const n = particles.length;
-          const px = new Float64Array(n);
-          const py = new Float64Array(n);
-          const cq = new Float64Array(n);
-          for (let i = 0; i < n; i++) {
-            px[i] = particles[i].pos.x;
-            py[i] = particles[i].pos.y;
-            cq[i] = particles[i].charge ?? 0;
+          // Precompute source arrays (particles + magnet poles)
+          const magnetsList = (universe as any).get_magnets() as any[];
+          const pCount = particles.length;
+          const mCount = magnetsList.length;
+          const totalSources = pCount + mCount * 2;
+
+          const px = new Float64Array(totalSources);
+          const py = new Float64Array(totalSources);
+          const cq = new Float64Array(totalSources);
+
+          let idx = 0;
+          for (let i = 0; i < pCount; i++) {
+            px[idx] = particles[i].pos.x;
+            py[idx] = particles[i].pos.y;
+            cq[idx] = particles[i].charge ?? 0;
+            idx++;
           }
 
-          // Make grid adaptive: when more particles or larger views are present, increase stepWorld
-          const particleScale = Math.min(1 + n / 100, 4); // scale up spacing when many particles
-          stepWorld *= particleScale;
+          for (let j = 0; j < mCount; j++) {
+            const m = magnetsList[j];
+            const ux = Math.cos(m.angle || 0);
+            const uy = Math.sin(m.angle || 0);
+            const half = (m.size || 60) / 2;
+            const north = { x: m.pos.x + ux * half, y: m.pos.y + uy * half };
+            const south = { x: m.pos.x - ux * half, y: m.pos.y - uy * half };
+            px[idx] = north.x;
+            py[idx] = north.y;
+            cq[idx] = m.strength || 0;
+            idx++;
+            px[idx] = south.x;
+            py[idx] = south.y;
+            cq[idx] = -(m.strength || 0);
+            idx++;
+          }
+
+          // Make grid adaptive: when more sources or larger views are present, increase stepWorld
+          const sourceScale = Math.min(1 + totalSources / 100, 4); // scale up spacing when many sources
+          stepWorld *= sourceScale;
 
           // Limit grid resolution to avoid huge allocations
           const estimatedGridX = Math.ceil((maxX - minX) / stepWorld) + 1;
@@ -315,8 +518,8 @@ export default function SandBox({ universe }: SandBoxProps) {
 
           // Reduce level complexity on very dense scenes
           let levelsToUse = potentialLevels;
-          if (n > 200) levelsToUse = [-0.2, 0.2];
-          else if (n > 80) levelsToUse = [-0.5, -0.2, 0.2, 0.5];
+          if (totalSources > 200) levelsToUse = [-0.2, 0.2];
+          else if (totalSources > 80) levelsToUse = [-0.5, -0.2, 0.2, 0.5];
 
           // Recompute heavy geometry occasionally and cache it. Also only recompute when particles moved significantly.
           const shouldRecomputeHeavy = render % 60 === 0;
@@ -324,11 +527,11 @@ export default function SandBox({ universe }: SandBoxProps) {
           let movedSignificantly = true;
           if (
             equipParticlesSnapshotRef.current &&
-            equipParticlesSnapshotRef.current.px.length === n
+            equipParticlesSnapshotRef.current.px.length === totalSources
           ) {
             const old = equipParticlesSnapshotRef.current;
             let maxDistSq = 0;
-            for (let k = 0; k < n; k++) {
+            for (let k = 0; k < totalSources; k++) {
               const dx = px[k] - old.px[k];
               const dy = py[k] - old.py[k];
               const distSq = dx * dx + dy * dy;
@@ -385,7 +588,7 @@ export default function SandBox({ universe }: SandBoxProps) {
                 // Compute potential at this node
                 let V = 0;
                 let tooClose = false;
-                for (let k = 0; k < n; k++) {
+                for (let k = 0; k < totalSources; k++) {
                   const dx = wx - px[k];
                   const dy = wy - py[k];
                   const distSq = dx * dx + dy * dy;
@@ -555,6 +758,40 @@ export default function SandBox({ universe }: SandBoxProps) {
                 ey += fieldMag * (dy / dist);
               }
 
+              // Include magnets as dipoles (two poles)
+              for (const m of magnets) {
+                const ux = Math.cos(m.angle || 0);
+                const uy = Math.sin(m.angle || 0);
+                const half = (m.size || 60) / 2;
+                const north = {
+                  x: m.pos.x + ux * half,
+                  y: m.pos.y + uy * half,
+                };
+                const south = {
+                  x: m.pos.x - ux * half,
+                  y: m.pos.y - uy * half,
+                };
+
+                const poles = [
+                  { pos: north, s: m.strength || 0 },
+                  { pos: south, s: -(m.strength || 0) },
+                ];
+
+                for (const pole of poles) {
+                  const dx = x - pole.pos.x;
+                  const dy = y - pole.pos.y;
+                  const distSq = dx * dx + dy * dy;
+                  const dist = Math.sqrt(distSq);
+                  if (dist < 15) {
+                    graphics.stroke();
+                    return;
+                  }
+                  const fieldMag = pole.s / distSq;
+                  ex += fieldMag * (dx / dist);
+                  ey += fieldMag * (dy / dist);
+                }
+              }
+
               const mag = Math.sqrt(ex * ex + ey * ey);
               if (mag < 1e-5) break;
 
@@ -580,6 +817,22 @@ export default function SandBox({ universe }: SandBoxProps) {
                 angle,
                 charge.charge > 0
               );
+            }
+          }
+
+          // Also draw lines for magnets (treat poles as sources/sinks)
+          for (const m of magnets) {
+            const ux = Math.cos(m.angle || 0);
+            const uy = Math.sin(m.angle || 0);
+            const half = (m.size || 60) / 2;
+            const north = { x: m.pos.x + ux * half, y: m.pos.y + uy * half };
+            const south = { x: m.pos.x - ux * half, y: m.pos.y - uy * half };
+
+            const numLines = 10;
+            for (let i = 0; i < numLines; i++) {
+              const angle = (2 * Math.PI * i) / numLines;
+              drawFieldLineFrom(north.x, north.y, angle, true);
+              drawFieldLineFrom(south.x, south.y, angle, false);
             }
           }
         }
@@ -614,6 +867,24 @@ export default function SandBox({ universe }: SandBoxProps) {
     universe.time_step(delta.deltaTime / 60); // Convert to seconds
   });
 
+  // Cleanup magnet text objects on unmount
+  useEffect(() => {
+    return () => {
+      const container = pixiContainerRef.current;
+      if (container) {
+        for (const t of magnetTextsRef.current) {
+          container.removeChild(t);
+          try {
+            t.destroy();
+          } catch (e) {
+            /* ignore */
+          }
+        }
+        magnetTextsRef.current = [];
+      }
+    };
+  }, []);
+
   return (
     <>
       <pixiContainer
@@ -627,6 +898,26 @@ export default function SandBox({ universe }: SandBoxProps) {
 
           const localPos = pixiContainerRef.current.toLocal(event.data.global);
           const particles = universe.get_particles() as Particle[];
+          const magnets = (universe as any).get_magnets() as any[];
+
+          // Check if clicked on a magnet (top-most first)
+          for (let i = magnets.length - 1; i >= 0; i--) {
+            const m = magnets[i];
+            const dx = localPos.x - m.pos.x;
+            const dy = localPos.y - m.pos.y;
+            const halfW = (m.size || 60) / 2;
+            const halfH = (m.thickness || 20) / 2;
+            if (Math.abs(dx) <= halfW + 10 && Math.abs(dy) <= halfH + 10) {
+              // clear particle selection when selecting a magnet
+              setSelectedParticleIndex(null);
+              setSelectedMagnetIndex(i);
+              if (universe.get_is_paused()) {
+                setIsPropertyEditorOpen(true);
+              }
+              handleMagnetDragStart(i, event);
+              return;
+            }
+          }
 
           // Check if clicked on a particle
           for (let i = particles.length - 1; i >= 0; i--) {
@@ -636,6 +927,8 @@ export default function SandBox({ universe }: SandBoxProps) {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance <= particle.radius + 10) {
+              // clear magnet selection when selecting a particle
+              setSelectedMagnetIndex(null);
               setSelectedParticleIndex(i);
               // Only open property editor when paused
               if (universe.get_is_paused()) {
@@ -653,6 +946,9 @@ export default function SandBox({ universe }: SandBoxProps) {
           if (isDraggingParticle && selectedParticleIndex !== null) {
             handleParticleDrag(selectedParticleIndex, event);
           }
+          if (isDraggingMagnet && selectedMagnetIndex !== null) {
+            handleMagnetDrag(selectedMagnetIndex, event);
+          }
 
           // Only allow hover highlighting when paused
           if (!universe.get_is_paused()) {
@@ -666,25 +962,45 @@ export default function SandBox({ universe }: SandBoxProps) {
           if (!isDraggingParticle) {
             // Check if hovering over a particle and update hover state
             const particles = universe.get_particles() as Particle[];
+            const magnets = (universe as any).get_magnets() as any[];
             let hoveringOverParticle = false;
             let hoveredIndex: number | null = null;
+            let hoveringOverMagnet = false;
+            let hoveredMagIndex: number | null = null;
             const localPos = pixiContainerRef.current.toLocal(
               event.data.global
             );
 
-            for (let i = particles.length - 1; i >= 0; i--) {
-              const particle = particles[i];
-              const dx = localPos.x - particle.pos.x;
-              const dy = localPos.y - particle.pos.y;
-              const distance = Math.sqrt(dx * dx + dy * dy);
-
-              if (distance <= particle.radius + 10) {
-                hoveringOverParticle = true;
-                hoveredIndex = i;
+            // Check magnets first
+            for (let i = magnets.length - 1; i >= 0; i--) {
+              const m = magnets[i];
+              const dx = localPos.x - m.pos.x;
+              const dy = localPos.y - m.pos.y;
+              const halfW = (m.size || 60) / 2;
+              const halfH = (m.thickness || 20) / 2;
+              if (Math.abs(dx) <= halfW + 10 && Math.abs(dy) <= halfH + 10) {
+                hoveringOverMagnet = true;
+                hoveredMagIndex = i;
                 break;
               }
             }
 
+            if (!hoveringOverMagnet) {
+              for (let i = particles.length - 1; i >= 0; i--) {
+                const particle = particles[i];
+                const dx = localPos.x - particle.pos.x;
+                const dy = localPos.y - particle.pos.y;
+                const distance = Math.sqrt(dx * dx + dy * dy);
+
+                if (distance <= particle.radius + 10) {
+                  hoveringOverParticle = true;
+                  hoveredIndex = i;
+                  break;
+                }
+              }
+            }
+
+            setHoveredMagnetIndex(hoveredMagIndex);
             setHoveredParticleIndex(hoveredIndex);
             if (pixiContainerRef.current) {
               pixiContainerRef.current.cursor = hoveringOverParticle
@@ -693,8 +1009,14 @@ export default function SandBox({ universe }: SandBoxProps) {
             }
           }
         }}
-        onPointerUp={handleParticleDragEnd}
-        onPointerUpOutside={handleParticleDragEnd}
+        onPointerUp={() => {
+          handleParticleDragEnd();
+          handleMagnetDragEnd();
+        }}
+        onPointerUpOutside={() => {
+          handleParticleDragEnd();
+          handleMagnetDragEnd();
+        }}
       >
         <pixiGraphics draw={drawCallback} />
       </pixiContainer>

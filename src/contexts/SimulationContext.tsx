@@ -8,6 +8,8 @@ interface SimulationContextType {
   setRender: React.Dispatch<React.SetStateAction<number>>;
   selectedParticleIndex: number | null;
   setSelectedParticleIndex: (index: number | null) => void;
+  selectedMagnetIndex: number | null;
+  setSelectedMagnetIndex: (index: number | null) => void;
   isPropertyEditorOpen: boolean;
   setIsPropertyEditorOpen: (open: boolean) => void;
   isUniverseEditorOpen: boolean;
@@ -51,6 +53,9 @@ export function SimulationProvider({
   const [selectedParticleIndex, setSelectedParticleIndex] = useState<
     number | null
   >(null);
+  const [selectedMagnetIndex, setSelectedMagnetIndex] = useState<number | null>(
+    null
+  );
   const [isPropertyEditorOpen, setIsPropertyEditorOpen] = useState(false);
   const [isUniverseEditorOpen, setIsUniverseEditorOpen] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
@@ -74,6 +79,8 @@ export function SimulationProvider({
         setRender,
         selectedParticleIndex,
         setSelectedParticleIndex,
+        selectedMagnetIndex,
+        setSelectedMagnetIndex,
         isPropertyEditorOpen,
         setIsPropertyEditorOpen,
         isUniverseEditorOpen,

@@ -96,7 +96,6 @@ pub struct Particle {
     pub color: u32,
     // Charge in Coulombs
     pub charge: f64,
-    pub touching_ground: bool,
     pub fixed: bool,
 }
 #[wasm_bindgen]
@@ -121,7 +120,6 @@ impl Particle {
             color,
             charge,
             trail: vec![],
-            touching_ground: false,
             fixed: false,
         }
     }
@@ -136,7 +134,6 @@ impl Particle {
             color,
             charge: 0.0, // default charge set by Universe when added simply
             trail: vec![],
-            touching_ground: false,
             fixed: false,
         }
     }
@@ -161,10 +158,6 @@ impl Particle {
 
     pub fn get_data(&self) -> JsValue {
         serde_wasm_bindgen::to_value(&self).unwrap()
-    }
-
-    pub fn get_touching_ground(&self) -> bool {
-        self.touching_ground
     }
 
     pub fn is_fixed(&self) -> bool {
@@ -299,11 +292,10 @@ impl QuadTreeNode {
 #[derive(Serialize, Deserialize, Clone)]
 pub struct Universe {
     particles: Vec<Particle>,
+    magnets: Vec<Magnet>,
     // Coulomb constant (k) (scaled for visualization)
     coulomb_constant: f64,
     air_density: f64, // repurposed: default charge
-    wind_x: f64, // kept for API compatibility (unused)
-    wind_y: f64, // kept for API compatibility (unused)
     show_trails: bool,
     is_paused: bool,
     implementation: Implementation,
@@ -313,6 +305,8 @@ pub struct Universe {
     mass_calculation: bool,
     default_charge: f64, // renamed from default_drag_coefficient
     spawn_range: f64, // configurable spawn range for new particles (±units)
+    wind_x: f64,
+    wind_y: f64,
     // Minimum interaction distance to avoid Coulomb singularities
     min_interaction_distance: f64,
     // quadtree options
@@ -350,6 +344,7 @@ impl Universe {
 
         Universe {
             particles,
+            magnets: vec![],
             coulomb_constant: 8.9875517923e3, // Coulomb constant (scaled for visibility)
             air_density: 1.0, // default charge
             wind_x: 0.0,
@@ -418,6 +413,21 @@ impl Universe {
                         self.particles[i].pos.y += self.particles[i].vel.y * dt;
                     }
                     self.particles[i].acc = accelerations[i];
+                }
+
+                // Update magnets (simple explicit integration per substep)
+                let magnet_accs = self.calculate_magnet_accelerations();
+                if magnet_accs.iter().any(|a| (a.x.is_nan() || a.y.is_nan())) {
+                    return 1;
+                }
+                for mi in 0..self.magnets.len() {
+                    if !self.magnets[mi].fixed {
+                        self.magnets[mi].vel.x += magnet_accs[mi].x * dt;
+                        self.magnets[mi].vel.y += magnet_accs[mi].y * dt;
+                        self.magnets[mi].pos.x += self.magnets[mi].vel.x * dt;
+                        self.magnets[mi].pos.y += self.magnets[mi].vel.y * dt;
+                    }
+                    self.magnets[mi].acc = magnet_accs[mi];
                 }
 
                 if self.collisions_enabled {
@@ -514,6 +524,21 @@ impl Universe {
                     self.particles[i].acc = k1_acc[i];
                 }
 
+                // Integrate magnets (after RK4 particles update)
+                let magnet_accs = self.calculate_magnet_accelerations();
+                if magnet_accs.iter().any(|a| (a.x.is_nan() || a.y.is_nan())) {
+                    return 1;
+                }
+                for mi in 0..self.magnets.len() {
+                    if !self.magnets[mi].fixed {
+                        self.magnets[mi].vel.x += magnet_accs[mi].x * dt;
+                        self.magnets[mi].vel.y += magnet_accs[mi].y * dt;
+                        self.magnets[mi].pos.x += self.magnets[mi].vel.x * dt;
+                        self.magnets[mi].pos.y += self.magnets[mi].vel.y * dt;
+                    }
+                    self.magnets[mi].acc = magnet_accs[mi];
+                }
+
                 if self.collisions_enabled {
                     self.handle_collisions();
                 }
@@ -556,6 +581,21 @@ impl Universe {
                         self.particles[i].pos = new_positions[i];
                     }
                     self.particles[i].acc = new_acc[i];
+                }
+
+                // Update magnets (Verlet integration: explicit update per substep)
+                let magnet_accs = self.calculate_magnet_accelerations();
+                if magnet_accs.iter().any(|a| (a.x.is_nan() || a.y.is_nan())) {
+                    return 1;
+                }
+                for mi in 0..self.magnets.len() {
+                    if !self.magnets[mi].fixed {
+                        self.magnets[mi].vel.x += magnet_accs[mi].x * dt;
+                        self.magnets[mi].vel.y += magnet_accs[mi].y * dt;
+                        self.magnets[mi].pos.x += self.magnets[mi].vel.x * dt;
+                        self.magnets[mi].pos.y += self.magnets[mi].vel.y * dt;
+                    }
+                    self.magnets[mi].acc = magnet_accs[mi];
                 }
 
                 if self.collisions_enabled {
@@ -605,6 +645,21 @@ impl Universe {
                     self.particles[i].acc = new_acc[i];
                 }
 
+                // Update magnets (Leapfrog - explicit per substep)
+                let magnet_accs = self.calculate_magnet_accelerations();
+                if magnet_accs.iter().any(|a| (a.x.is_nan() || a.y.is_nan())) {
+                    return 1;
+                }
+                for mi in 0..self.magnets.len() {
+                    if !self.magnets[mi].fixed {
+                        self.magnets[mi].vel.x += magnet_accs[mi].x * dt;
+                        self.magnets[mi].vel.y += magnet_accs[mi].y * dt;
+                        self.magnets[mi].pos.x += self.magnets[mi].vel.x * dt;
+                        self.magnets[mi].pos.y += self.magnets[mi].vel.y * dt;
+                    }
+                    self.magnets[mi].acc = magnet_accs[mi];
+                }
+
                 if self.collisions_enabled {
                     self.handle_collisions();
                 }
@@ -645,6 +700,51 @@ impl Universe {
                     accelerations[i].y += acc_magnitude * (ry / dist);
                 }
             }
+
+            // Magnet dipole contributions: treat each magnet as two poles (+/- strength/2)
+            for m in &self.magnets {
+                let half = (m.size as f64) * 0.5;
+                let ux = f64::cos(m.angle);
+                let uy = f64::sin(m.angle);
+                let north = Vec2::new(m.pos.x + ux * half, m.pos.y + uy * half);
+                let south = Vec2::new(m.pos.x - ux * half, m.pos.y - uy * half);
+                let pole_n = m.strength * 0.5; // north pole pseudo-charge
+                let pole_s = -m.strength * 0.5; // south pole pseudo-charge
+
+                // north pole
+                {
+                    let rx = self.particles[i].pos.x - north.x;
+                    let ry = self.particles[i].pos.y - north.y;
+                    let dist_sq = rx * rx + ry * ry;
+                    let min_dist = self.min_interaction_distance;
+                    let min_dist_sq = min_dist * min_dist;
+                    let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                    let dist = f64::sqrt(safe_dist_sq);
+                    if dist > 1e-8 {
+                        let force_magnitude = (self.coulomb_constant * qi * pole_n) / safe_dist_sq;
+                        let acc_magnitude = force_magnitude / mi;
+                        accelerations[i].x += acc_magnitude * (rx / dist);
+                        accelerations[i].y += acc_magnitude * (ry / dist);
+                    }
+                }
+
+                // south pole
+                {
+                    let rx = self.particles[i].pos.x - south.x;
+                    let ry = self.particles[i].pos.y - south.y;
+                    let dist_sq = rx * rx + ry * ry;
+                    let min_dist = self.min_interaction_distance;
+                    let min_dist_sq = min_dist * min_dist;
+                    let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                    let dist = f64::sqrt(safe_dist_sq);
+                    if dist > 1e-8 {
+                        let force_magnitude = (self.coulomb_constant * qi * pole_s) / safe_dist_sq;
+                        let acc_magnitude = force_magnitude / mi;
+                        accelerations[i].x += acc_magnitude * (rx / dist);
+                        accelerations[i].y += acc_magnitude * (ry / dist);
+                    }
+                }
+            }
         }
 
         accelerations
@@ -681,120 +781,172 @@ impl Universe {
                     accelerations[i].y += acc_magnitude * (ry / dist);
                 }
             }
-        }
 
-        accelerations
-    }
+            // Include magnet dipole contributions using magnet positions from self
+            for m in &self.magnets {
+                let half = (m.size as f64) * 0.5;
+                let ux = f64::cos(m.angle);
+                let uy = f64::sin(m.angle);
+                let north = Vec2::new(m.pos.x + ux * half, m.pos.y + uy * half);
+                let south = Vec2::new(m.pos.x - ux * half, m.pos.y - uy * half);
+                let pole_n = m.strength * 0.5;
+                let pole_s = -m.strength * 0.5;
 
-    // Barnes-Hut approximation helpers
-    fn acceleration_from_quad(
-        &self,
-        particle_pos: Vec2,
-        particle_charge: f64,
-        particle_mass: f64,
-        quad: &QuadTreeNode
-    ) -> Vec2 {
-        if quad.charge == 0.0 {
-            return Vec2::new(0.0, 0.0);
-        }
-        let dx = quad.center_of_charge.x - particle_pos.x;
-        let dy = quad.center_of_charge.y - particle_pos.y;
-        let distance = f64::sqrt(dx * dx + dy * dy);
-        if distance < 1e-10 {
-            return Vec2::new(0.0, 0.0);
-        }
+                // North pole contribution
+                {
+                    let rx = positions[i].x - north.x;
+                    let ry = positions[i].y - north.y;
+                    let dist_sq = rx * rx + ry * ry;
+                    let min_dist = self.min_interaction_distance;
+                    let min_dist_sq = min_dist * min_dist;
+                    let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                    let dist = f64::sqrt(safe_dist_sq);
+                    if dist > 1e-8 {
+                        let force_magnitude = (self.coulomb_constant * qi * pole_n) / safe_dist_sq;
+                        let acc_magnitude = force_magnitude / mi;
+                        accelerations[i].x += acc_magnitude * (rx / dist);
+                        accelerations[i].y += acc_magnitude * (ry / dist);
+                    }
+                }
 
-        let size = f64::max(quad.dimensions.x, quad.dimensions.y);
-        let ratio = size / distance;
-
-        if ratio < self.quadtree_theta || quad.children.is_none() {
-            // treat as a single body
-            let distance_squared = distance * distance;
-            // Soften the distance to avoid singularities when a particle is very close to the quad's center
-            let min_dist = self.min_interaction_distance;
-            let min_dist_sq = min_dist * min_dist;
-            let safe_distance_squared = if distance_squared < min_dist_sq {
-                min_dist_sq
-            } else {
-                distance_squared
-            };
-            let safe_distance = f64::sqrt(safe_distance_squared);
-            let force_magnitude =
-                (self.coulomb_constant * quad.charge * particle_charge) / safe_distance_squared;
-            let acc_magnitude = force_magnitude / particle_mass;
-            let unit_x = (particle_pos.x - quad.center_of_charge.x) / safe_distance;
-            let unit_y = (particle_pos.y - quad.center_of_charge.y) / safe_distance;
-            Vec2::new(acc_magnitude * unit_x, acc_magnitude * unit_y)
-        } else {
-            let mut acc = Vec2::new(0.0, 0.0);
-            if let Some(children) = &quad.children {
-                for child in children.iter() {
-                    acc += self.acceleration_from_quad(
-                        particle_pos,
-                        particle_charge,
-                        particle_mass,
-                        child
-                    );
+                // South pole contribution
+                {
+                    let rx = positions[i].x - south.x;
+                    let ry = positions[i].y - south.y;
+                    let dist_sq = rx * rx + ry * ry;
+                    let min_dist = self.min_interaction_distance;
+                    let min_dist_sq = min_dist * min_dist;
+                    let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                    let dist = f64::sqrt(safe_dist_sq);
+                    if dist > 1e-8 {
+                        let force_magnitude = (self.coulomb_constant * qi * pole_s) / safe_dist_sq;
+                        let acc_magnitude = force_magnitude / mi;
+                        accelerations[i].x += acc_magnitude * (rx / dist);
+                        accelerations[i].y += acc_magnitude * (ry / dist);
+                    }
                 }
             }
-            acc
-        }
-    }
-
-    fn calculate_electrostatic_accelerations_quadtree(&mut self) -> Vec<Vec2> {
-        let n = self.particles.len();
-        let mut accelerations = vec![Vec2::new(0.0, 0.0); n];
-
-        if n == 0 {
-            return accelerations;
-        }
-
-        // Rebuild quadtree
-        let mut min = Vec2::new(f64::MAX, f64::MAX);
-        let mut max = Vec2::new(f64::MIN, f64::MIN);
-
-        for p in &self.particles {
-            if p.pos.x < min.x {
-                min.x = p.pos.x;
-            }
-            if p.pos.y < min.y {
-                min.y = p.pos.y;
-            }
-            if p.pos.x > max.x {
-                max.x = p.pos.x;
-            }
-            if p.pos.y > max.y {
-                max.y = p.pos.y;
-            }
-        }
-
-        // Add small padding
-        let padding = 100.0;
-        min = min - Vec2::new(padding, padding);
-        max = max + Vec2::new(padding, padding);
-        let dimensions = max - min;
-        let center = min + dimensions * 0.5;
-
-        self.quadtree.rebuild(&self.particles, dimensions, center);
-
-        for i in 0..n {
-            let pos2d = Vec2::new(self.particles[i].pos.x, self.particles[i].pos.y);
-            let particle_mass = if self.mass_calculation {
-                self.particles[i].mass
-            } else {
-                self.default_mass
-            };
-            let acc2d = self.acceleration_from_quad(
-                pos2d,
-                self.particles[i].charge,
-                particle_mass,
-                &self.quadtree
-            );
-            accelerations[i].x = acc2d.x;
-            accelerations[i].y = acc2d.y;
         }
 
         accelerations
+    }
+
+    // Compute accelerations on magnets due to particles and other magnets (dipole approximation)
+    fn calculate_magnet_accelerations(&self) -> Vec<Vec2> {
+        let mcount = self.magnets.len();
+        let mut accs = vec![Vec2::new(0.0, 0.0); mcount];
+        if mcount == 0 {
+            return accs;
+        }
+
+        // Precompute particle charges/positions
+        for i in 0..mcount {
+            let m = &self.magnets[i];
+            let half = (m.size as f64) * 0.5;
+            let ux = f64::cos(m.angle);
+            let uy = f64::sin(m.angle);
+            let north = Vec2::new(m.pos.x + ux * half, m.pos.y + uy * half);
+            let south = Vec2::new(m.pos.x - ux * half, m.pos.y - uy * half);
+            let pole_i_n = m.strength * 0.5;
+            let pole_i_s = -m.strength * 0.5;
+
+            // Contribution from particles
+            for p in &self.particles {
+                let qi = p.charge;
+                // force on north pole due to particle
+                let rxn = north.x - p.pos.x;
+                let ryn = north.y - p.pos.y;
+                let dist_sq_n = rxn * rxn + ryn * ryn;
+                let min_dist = self.min_interaction_distance;
+                let min_dist_sq = min_dist * min_dist;
+                let safe_dist_sq_n = if dist_sq_n < min_dist_sq { min_dist_sq } else { dist_sq_n };
+                let dist_n = f64::sqrt(safe_dist_sq_n);
+                if dist_n > 1e-8 {
+                    let force_mag_n = (self.coulomb_constant * qi * pole_i_n) / safe_dist_sq_n;
+                    accs[i].x += (force_mag_n * (rxn / dist_n)) / m.mass;
+                    accs[i].y += (force_mag_n * (ryn / dist_n)) / m.mass;
+                }
+
+                // force on south pole due to particle
+                let rxs = south.x - p.pos.x;
+                let rys = south.y - p.pos.y;
+                let dist_sq_s = rxs * rxs + rys * rys;
+                let safe_dist_sq_s = if dist_sq_s < min_dist_sq { min_dist_sq } else { dist_sq_s };
+                let dist_s = f64::sqrt(safe_dist_sq_s);
+                if dist_s > 1e-8 {
+                    let force_mag_s = (self.coulomb_constant * qi * pole_i_s) / safe_dist_sq_s;
+                    accs[i].x += (force_mag_s * (rxs / dist_s)) / m.mass;
+                    accs[i].y += (force_mag_s * (rys / dist_s)) / m.mass;
+                }
+            }
+
+            // Contribution from other magnets (pole-pole interactions)
+            for j in 0..mcount {
+                if i == j {
+                    continue;
+                }
+                let other = &self.magnets[j];
+                let half_o = (other.size as f64) * 0.5;
+                let ux_o = f64::cos(other.angle);
+                let uy_o = f64::sin(other.angle);
+                let north_o = Vec2::new(other.pos.x + ux_o * half_o, other.pos.y + uy_o * half_o);
+                let south_o = Vec2::new(other.pos.x - ux_o * half_o, other.pos.y - uy_o * half_o);
+                let pole_j_n = other.strength * 0.5;
+                let pole_j_s = -other.strength * 0.5;
+
+                // i.north with j.north
+                let rx = north.x - north_o.x;
+                let ry = north.y - north_o.y;
+                let dist_sq = rx * rx + ry * ry;
+                let min_dist = self.min_interaction_distance;
+                let min_dist_sq = min_dist * min_dist;
+                let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                let dist = f64::sqrt(safe_dist_sq);
+                if dist > 1e-8 {
+                    let force_mag = (self.coulomb_constant * pole_i_n * pole_j_n) / safe_dist_sq;
+                    accs[i].x += (force_mag * (rx / dist)) / m.mass;
+                    accs[i].y += (force_mag * (ry / dist)) / m.mass;
+                }
+
+                // i.north with j.south
+                let rx = north.x - south_o.x;
+                let ry = north.y - south_o.y;
+                let dist_sq = rx * rx + ry * ry;
+                let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                let dist = f64::sqrt(safe_dist_sq);
+                if dist > 1e-8 {
+                    let force_mag = (self.coulomb_constant * pole_i_n * pole_j_s) / safe_dist_sq;
+                    accs[i].x += (force_mag * (rx / dist)) / m.mass;
+                    accs[i].y += (force_mag * (ry / dist)) / m.mass;
+                }
+
+                // i.south with j.north
+                let rx = south.x - north_o.x;
+                let ry = south.y - north_o.y;
+                let dist_sq = rx * rx + ry * ry;
+                let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                let dist = f64::sqrt(safe_dist_sq);
+                if dist > 1e-8 {
+                    let force_mag = (self.coulomb_constant * pole_i_s * pole_j_n) / safe_dist_sq;
+                    accs[i].x += (force_mag * (rx / dist)) / m.mass;
+                    accs[i].y += (force_mag * (ry / dist)) / m.mass;
+                }
+
+                // i.south with j.south
+                let rx = south.x - south_o.x;
+                let ry = south.y - south_o.y;
+                let dist_sq = rx * rx + ry * ry;
+                let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                let dist = f64::sqrt(safe_dist_sq);
+                if dist > 1e-8 {
+                    let force_mag = (self.coulomb_constant * pole_i_s * pole_j_s) / safe_dist_sq;
+                    accs[i].x += (force_mag * (rx / dist)) / m.mass;
+                    accs[i].y += (force_mag * (ry / dist)) / m.mass;
+                }
+            }
+        }
+
+        accs
     }
 
     // Collision handling (elastic collisions)
@@ -866,6 +1018,112 @@ impl Universe {
         *self = Universe::new();
     }
 
+    // Magnet addition/removal and accessors
+    pub fn add_magnet(
+        &mut self,
+        px: f64,
+        py: f64,
+        angle: f64,
+        size: f32,
+        thickness: f32,
+        mass: f64,
+        color_north: u32,
+        color_south: u32,
+        strength: f64,
+        fixed: bool
+    ) {
+        let m = Magnet::new(
+            px,
+            py,
+            angle,
+            size,
+            thickness,
+            mass,
+            color_north,
+            color_south,
+            strength,
+            fixed
+        );
+        self.magnets.push(m);
+    }
+
+    pub fn add_magnet_simple(&mut self, px: f64, py: f64, strength: f64) {
+        let m = Magnet::new_simple(px, py, strength);
+        self.magnets.push(m);
+    }
+
+    // Magnet helpers (reintroduced)
+    pub fn pop_magnet(&mut self) {
+        self.magnets.pop();
+    }
+
+    pub fn remove_magnet(&mut self, index: usize) {
+        if index < self.magnets.len() {
+            self.magnets.remove(index);
+        }
+    }
+
+    pub fn get_magnets(&self) -> JsValue {
+        serde_wasm_bindgen::to_value(&self.magnets).unwrap()
+    }
+
+    pub fn get_magnet(&self, index: usize) -> Option<Magnet> {
+        self.magnets.get(index).cloned()
+    }
+
+    pub fn get_magnet_count(&self) -> i32 {
+        self.magnets.len() as i32
+    }
+
+    pub fn update_magnet_position(&mut self, index: usize, x: f64, y: f64) {
+        if index < self.magnets.len() {
+            self.magnets[index].pos = Vec2::new(x, y);
+        }
+    }
+
+    pub fn update_magnet_velocity(&mut self, index: usize, vx: f64, vy: f64) {
+        if index < self.magnets.len() {
+            self.magnets[index].vel = Vec2::new(vx, vy);
+        }
+    }
+
+    pub fn update_magnet_mass(&mut self, index: usize, mass: f64) {
+        if index < self.magnets.len() {
+            self.magnets[index].mass = mass;
+        }
+    }
+
+    pub fn update_magnet_color_north(&mut self, index: usize, color: u32) {
+        if index < self.magnets.len() {
+            self.magnets[index].color_north = color;
+        }
+    }
+
+    pub fn update_magnet_color_south(&mut self, index: usize, color: u32) {
+        if index < self.magnets.len() {
+            self.magnets[index].color_south = color;
+        }
+    }
+
+    pub fn update_magnet_size(&mut self, index: usize, size: f32) {
+        if index < self.magnets.len() {
+            self.magnets[index].size = size;
+        }
+    }
+
+    pub fn update_magnet_strength(&mut self, index: usize, strength: f64) {
+        if index < self.magnets.len() {
+            self.magnets[index].strength = strength;
+        }
+    }
+
+    pub fn update_magnet_fixed(&mut self, index: usize, fixed: bool) {
+        if index < self.magnets.len() {
+            self.magnets[index].fixed = fixed;
+        }
+    }
+
+    // Particle addition/removal and accessors
     pub fn add_particle(
         &mut self,
         px: f64,
@@ -899,7 +1157,8 @@ impl Universe {
 
     pub fn random_color() -> u32 {
         let colors = [0xff0000, 0x0000ff, 0x00ff00, 0xf0f000, 0x00f0f0, 0xf000f0];
-        colors[rand::rng().random_range(0..colors.len())]
+        let idx = rand::thread_rng().gen_range(0..colors.len());
+        colors[idx]
     }
 
     pub fn add_particle_simple(&mut self, px: f64, py: f64, vx: f64, vy: f64, c: f64) {
@@ -939,53 +1198,6 @@ impl Universe {
         self.particles.len() as i32
     }
 
-    pub fn update_particle_position(&mut self, index: usize, x: f64, y: f64) {
-        if index < self.particles.len() {
-            self.particles[index].pos = Vec2::new(x, y);
-        }
-    }
-
-    pub fn update_particle_velocity(&mut self, index: usize, vx: f64, vy: f64) {
-        if index < self.particles.len() {
-            self.particles[index].vel = Vec2::new(vx, vy);
-        }
-    }
-
-    pub fn update_particle_mass(&mut self, index: usize, mass: f64) {
-        if index < self.particles.len() {
-            self.particles[index].mass = mass;
-        }
-    }
-
-    pub fn update_particle_color(&mut self, index: usize, color: u32) {
-        if index < self.particles.len() {
-            self.particles[index].color = color;
-        }
-    }
-
-    pub fn update_particle_radius(&mut self, index: usize, radius: f32) {
-        if index < self.particles.len() {
-            self.particles[index].radius = radius;
-        }
-    }
-
-    // New explicit method for charge
-    pub fn update_particle_charge(&mut self, index: usize, charge: f64) {
-        if index < self.particles.len() {
-            self.particles[index].charge = charge;
-            // Update color based on sign of new charge
-            self.particles[index].color = if charge < 0.0 {
-                0x0000ff
-            } else if charge > 0.0 {
-                0xff0000
-            } else {
-                Self::random_color()
-            };
-        }
-    }
-
-    // NOTE: compatibility wrapper removed - use update_particle_charge
-
     pub fn get_trails(&self) -> JsValue {
         if self.show_trails {
             let trails: Vec<Vec<Trail>> = self.particles
@@ -999,7 +1211,10 @@ impl Universe {
         }
     }
 
-    // Coulomb constant getters/setters (kept under gravity API for compatibility)
+    pub fn get_data(&self) -> JsValue {
+        serde_wasm_bindgen::to_value(&self).unwrap()
+    }
+
     pub fn set_coulomb_constant(&mut self, k: f64) {
         self.coulomb_constant = k;
     }
@@ -1064,22 +1279,6 @@ impl Universe {
         return self.default_charge;
     }
 
-    pub fn set_wind_x(&mut self, wind_x: f64) {
-        self.wind_x = wind_x;
-    }
-
-    pub fn get_wind_x(&self) -> f64 {
-        return self.wind_x;
-    }
-
-    pub fn set_wind_y(&mut self, wind_y: f64) {
-        self.wind_y = wind_y;
-    }
-
-    pub fn get_wind_y(&self) -> f64 {
-        return self.wind_y;
-    }
-
     pub fn set_default_mass(&mut self, mass: f64) {
         self.default_mass = mass;
     }
@@ -1097,31 +1296,7 @@ impl Universe {
         return self.mass_calculation;
     }
 
-    pub fn set_use_mass_in_calculation(&mut self, _use_mass: bool) {
-        // Mass is always used for converting force->acceleration in this simulation
-    }
-
-    pub fn get_use_mass_in_calculation(&self) -> bool {
-        return true;
-    }
-
-    // Collisions controls
-    pub fn set_collisions_enabled(&mut self, enabled: bool) {
-        self.collisions_enabled = enabled;
-    }
-
-    pub fn get_collisions_enabled(&self) -> bool {
-        return self.collisions_enabled;
-    }
-
-    pub fn set_restitution(&mut self, r: f64) {
-        self.restitution = r;
-    }
-
-    pub fn get_restitution(&self) -> f64 {
-        return self.restitution;
-    }
-
+    // Quadtree controls (reintroduced)
     pub fn set_use_quadtree(&mut self, use_quadtree: bool) {
         self.use_quadtree = use_quadtree;
     }
@@ -1162,15 +1337,324 @@ impl Universe {
                 }
             }
 
+            // Add small padding
             let padding = 100.0;
             min = min - Vec2::new(padding, padding);
             max = max + Vec2::new(padding, padding);
-
             let dimensions = max - min;
             let center = min + dimensions * 0.5;
             self.quadtree.rebuild(&self.particles, dimensions, center);
         }
-
         serde_wasm_bindgen::to_value(&self.quadtree).unwrap()
+    }
+    pub fn set_use_mass_in_calculation(&mut self, _use_mass: bool) {
+        // Mass is always used for converting force->acceleration in this simulation
+    }
+
+    pub fn get_use_mass_in_calculation(&self) -> bool {
+        return true;
+    }
+
+    // Collisions controls
+    pub fn set_collisions_enabled(&mut self, enabled: bool) {
+        self.collisions_enabled = enabled;
+    }
+
+    pub fn get_collisions_enabled(&self) -> bool {
+        return self.collisions_enabled;
+    }
+
+    pub fn set_restitution(&mut self, r: f64) {
+        self.restitution = r;
+    }
+
+    pub fn get_restitution(&self) -> f64 {
+        return self.restitution;
+    }
+    pub fn update_particle_position(&mut self, index: usize, x: f64, y: f64) {
+        if index < self.particles.len() {
+            self.particles[index].pos = Vec2::new(x, y);
+        }
+    }
+
+    pub fn update_particle_velocity(&mut self, index: usize, vx: f64, vy: f64) {
+        if index < self.particles.len() {
+            self.particles[index].vel = Vec2::new(vx, vy);
+        }
+    }
+
+    pub fn update_particle_mass(&mut self, index: usize, mass: f64) {
+        if index < self.particles.len() {
+            self.particles[index].mass = mass;
+        }
+    }
+
+    pub fn update_particle_charge(&mut self, index: usize, charge: f64) {
+        if index < self.particles.len() {
+            self.particles[index].charge = charge;
+        }
+    }
+
+    pub fn update_particle_radius(&mut self, index: usize, radius: f32) {
+        if index < self.particles.len() {
+            self.particles[index].radius = radius;
+        }
+    }
+
+    pub fn update_particle_color(&mut self, index: usize, color: u32) {
+        if index < self.particles.len() {
+            self.particles[index].color = color;
+        }
+    }
+
+    // Update particle fixed state
+    pub fn update_particle_fixed(&mut self, index: usize, fixed: bool) {
+        if index < self.particles.len() {
+            self.particles[index].fixed = fixed;
+        }
+    }
+
+    // NOTE: Particle magnet strength removed; magnets carry strength instead
+}
+
+#[wasm_bindgen]
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Magnet {
+    pub pos: Vec2,
+    pub vel: Vec2,
+    pub acc: Vec2,
+    pub angle: f64, // orientation in radians; +x direction indicates North
+    pub size: f32, // overall length of magnet (distance between pole centers)
+    pub thickness: f32, // visual thickness
+    pub mass: f64,
+    pub color_north: u32,
+    pub color_south: u32,
+    pub strength: f64,
+    pub fixed: bool,
+}
+
+#[wasm_bindgen]
+impl Magnet {
+    #[wasm_bindgen(constructor)]
+    pub fn new(
+        px: f64,
+        py: f64,
+        angle: f64,
+        size: f32,
+        thickness: f32,
+        mass: f64,
+        color_north: u32,
+        color_south: u32,
+        strength: f64,
+        fixed: bool
+    ) -> Magnet {
+        Magnet {
+            pos: Vec2::new(px, py),
+            vel: Vec2::new(0.0, 0.0),
+            acc: Vec2::new(0.0, 0.0),
+            angle,
+            size,
+            thickness,
+            mass,
+            color_north,
+            color_south,
+            strength,
+            fixed,
+        }
+    }
+
+    pub fn new_simple(px: f64, py: f64, strength: f64) -> Magnet {
+        Magnet {
+            pos: Vec2::new(px, py),
+            vel: Vec2::new(0.0, 0.0),
+            acc: Vec2::new(0.0, 0.0),
+            angle: 0.0,
+            size: 60.0,
+            thickness: 20.0,
+            mass: 1.0,
+            color_north: 0xff0000,
+            color_south: 0x0000ff,
+            strength,
+            fixed: true,
+        }
+    }
+
+    pub fn get_data(&self) -> JsValue {
+        serde_wasm_bindgen::to_value(&self).unwrap()
+    }
+
+    pub fn is_fixed(&self) -> bool {
+        self.fixed
+    }
+    pub fn set_fixed(&mut self, f: bool) {
+        self.fixed = f;
+    }
+}
+
+// Add quadtree acceleration method within an impl Universe block
+impl Universe {
+    fn calculate_electrostatic_accelerations_quadtree(&mut self) -> Vec<Vec2> {
+        let n = self.particles.len();
+        let mut accelerations = vec![Vec2::new(0.0, 0.0); n];
+
+        if n == 0 {
+            return accelerations;
+        }
+
+        // Rebuild quadtree
+        let mut min = Vec2::new(f64::MAX, f64::MAX);
+        let mut max = Vec2::new(f64::MIN, f64::MIN);
+
+        for p in &self.particles {
+            if p.pos.x < min.x {
+                min.x = p.pos.x;
+            }
+            if p.pos.y < min.y {
+                min.y = p.pos.y;
+            }
+            if p.pos.x > max.x {
+                max.x = p.pos.x;
+            }
+            if p.pos.y > max.y {
+                max.y = p.pos.y;
+            }
+        }
+
+        // Add small padding
+        let padding = 100.0;
+        min = min - Vec2::new(padding, padding);
+        max = max + Vec2::new(padding, padding);
+        let dimensions = max - min;
+        let center = min + dimensions * 0.5;
+
+        self.quadtree.rebuild(&self.particles, dimensions, center);
+
+        for i in 0..n {
+            let pos2d = Vec2::new(self.particles[i].pos.x, self.particles[i].pos.y);
+            let particle_mass = if self.mass_calculation {
+                self.particles[i].mass
+            } else {
+                self.default_mass
+            };
+            // Inline recursive quadtree evaluation to compute acceleration
+            fn rec(
+                quad: &QuadTreeNode,
+                particle_pos: Vec2,
+                particle_charge: f64,
+                particle_mass: f64,
+                theta: f64,
+                coulomb_constant: f64,
+                min_interaction_distance: f64
+            ) -> Vec2 {
+                if quad.charge == 0.0 {
+                    return Vec2::new(0.0, 0.0);
+                }
+                let dx = quad.center_of_charge.x - particle_pos.x;
+                let dy = quad.center_of_charge.y - particle_pos.y;
+                let distance = f64::sqrt(dx * dx + dy * dy);
+                if distance < 1e-10 {
+                    return Vec2::new(0.0, 0.0);
+                }
+                let size = f64::max(quad.dimensions.x, quad.dimensions.y);
+                let ratio = size / distance;
+
+                if ratio < theta || quad.children.is_none() {
+                    let distance_squared = distance * distance;
+                    let min_dist = min_interaction_distance;
+                    let min_dist_sq = min_dist * min_dist;
+                    let safe_distance_squared = if distance_squared < min_dist_sq {
+                        min_dist_sq
+                    } else {
+                        distance_squared
+                    };
+                    let safe_distance = f64::sqrt(safe_distance_squared);
+                    let force_magnitude =
+                        (coulomb_constant * quad.charge * particle_charge) / safe_distance_squared;
+                    let acc_magnitude = force_magnitude / particle_mass;
+                    let unit_x = (particle_pos.x - quad.center_of_charge.x) / safe_distance;
+                    let unit_y = (particle_pos.y - quad.center_of_charge.y) / safe_distance;
+                    Vec2::new(acc_magnitude * unit_x, acc_magnitude * unit_y)
+                } else {
+                    let mut acc = Vec2::new(0.0, 0.0);
+                    if let Some(children) = &quad.children {
+                        for child in children.iter() {
+                            acc += rec(
+                                child,
+                                particle_pos,
+                                particle_charge,
+                                particle_mass,
+                                theta,
+                                coulomb_constant,
+                                min_interaction_distance
+                            );
+                        }
+                    }
+                    acc
+                }
+            }
+
+            let acc2d = rec(
+                &self.quadtree,
+                pos2d,
+                self.particles[i].charge,
+                particle_mass,
+                self.quadtree_theta,
+                self.coulomb_constant,
+                self.min_interaction_distance
+            );
+            accelerations[i].x = acc2d.x;
+            accelerations[i].y = acc2d.y;
+        }
+
+        // Include magnet dipole contributions
+        for i in 0..n {
+            let qi = self.particles[i].charge;
+            let mi = if self.mass_calculation { self.particles[i].mass } else { self.default_mass };
+            for m in &self.magnets {
+                let half = (m.size as f64) * 0.5;
+                let ux = f64::cos(m.angle);
+                let uy = f64::sin(m.angle);
+                let north = Vec2::new(m.pos.x + ux * half, m.pos.y + uy * half);
+                let south = Vec2::new(m.pos.x - ux * half, m.pos.y - uy * half);
+                let pole_n = m.strength * 0.5;
+                let pole_s = -m.strength * 0.5;
+
+                // North pole
+                {
+                    let rx = self.particles[i].pos.x - north.x;
+                    let ry = self.particles[i].pos.y - north.y;
+                    let dist_sq = rx * rx + ry * ry;
+                    let min_dist = self.min_interaction_distance;
+                    let min_dist_sq = min_dist * min_dist;
+                    let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                    let dist = f64::sqrt(safe_dist_sq);
+                    if dist > 1e-8 {
+                        let force_magnitude = (self.coulomb_constant * qi * pole_n) / safe_dist_sq;
+                        let acc_magnitude = force_magnitude / mi;
+                        accelerations[i].x += acc_magnitude * (rx / dist);
+                        accelerations[i].y += acc_magnitude * (ry / dist);
+                    }
+                }
+
+                // South pole
+                {
+                    let rx = self.particles[i].pos.x - south.x;
+                    let ry = self.particles[i].pos.y - south.y;
+                    let dist_sq = rx * rx + ry * ry;
+                    let min_dist = self.min_interaction_distance;
+                    let min_dist_sq = min_dist * min_dist;
+                    let safe_dist_sq = if dist_sq < min_dist_sq { min_dist_sq } else { dist_sq };
+                    let dist = f64::sqrt(safe_dist_sq);
+                    if dist > 1e-8 {
+                        let force_magnitude = (self.coulomb_constant * qi * pole_s) / safe_dist_sq;
+                        let acc_magnitude = force_magnitude / mi;
+                        accelerations[i].x += acc_magnitude * (rx / dist);
+                        accelerations[i].y += acc_magnitude * (ry / dist);
+                    }
+                }
+            }
+        }
+
+        accelerations
     }
 }

@@ -6,19 +6,27 @@ export default function PropertyEditor() {
   const {
     universe,
     selectedParticleIndex,
+    selectedMagnetIndex,
     isPropertyEditorOpen,
     setSelectedParticleIndex,
+    setSelectedMagnetIndex,
     setIsPropertyEditorOpen,
     render,
     setRender,
   } = useSimulation();
 
-  // Get the selected particle
-  const particle = useMemo(() => {
+  // Get the selected particle or magnet
+  const selectedParticle = useMemo(() => {
     return selectedParticleIndex !== null
       ? universe.get_particle(selectedParticleIndex)
       : null;
   }, [selectedParticleIndex, universe, render]);
+
+  const selectedMagnet = useMemo(() => {
+    return selectedMagnetIndex !== null
+      ? (universe as any).get_magnet(selectedMagnetIndex)
+      : null;
+  }, [selectedMagnetIndex, universe, render]);
 
   // Check if mass calculation is enabled
   const isMassCalculationEnabled = universe.get_use_mass_in_calculation();
@@ -65,36 +73,45 @@ export default function PropertyEditor() {
   // Update local values when particle changes, but only if user is not actively editing
   useEffect(() => {
     // console.log("Updating PropertyEditor values from particle:", particle);
-    if (particle) {
+    // Update magnet strength only when a magnet is selected
+    if (selectedMagnet) {
+      if (!isEditing || !isEditing.includes("magnetStrength")) {
+        setMagnetStrengthValue((selectedMagnet.strength ?? 0).toFixed(2));
+      }
+    } else {
+      if (!isEditing || !isEditing.includes("magnetStrength")) {
+        setMagnetStrengthValue("0.00");
+      }
+    }
+
+    const p = selectedParticle;
+    if (p) {
       if (!isEditing || !isEditing.includes("mass")) {
-        setMassValue(particle.mass.toFixed(2));
+        setMassValue(p.mass.toFixed(2));
       }
       if (!isEditing || !isEditing.includes("charge")) {
-        setChargeValue(particle.charge.toFixed(2));
-      }
-      if (!isEditing || !isEditing.includes("magnetStrength")) {
-        setMagnetStrengthValue(particle.magnet_strength.toFixed(2));
+        setChargeValue((p.charge ?? 0).toFixed(2));
       }
       if (!isEditing || !isEditing.includes("radius")) {
-        setRadiusValue(particle.radius.toFixed(1));
+        setRadiusValue((p.radius ?? 10).toFixed(1));
       }
-      // Update position fields from particle.pos (unless user editing)
+      // Update position fields from pos (unless user editing)
       if (!isEditing || !isEditing.includes("position")) {
         setPositionValues({
-          x: particle.pos.x.toFixed(2),
-          y: particle.pos.y.toFixed(2),
+          x: p.pos.x.toFixed(2),
+          y: p.pos.y.toFixed(2),
         });
       }
 
-      // Update velocity fields from particle.vel (unless user editing)
+      // Update velocity fields from vel (unless user editing)
       if (!isEditing || !isEditing.includes("velocity")) {
         setVelocityValues({
-          x: particle.vel.x.toFixed(2),
-          y: particle.vel.y.toFixed(2),
+          x: (p.vel?.x ?? 0).toFixed(2),
+          y: (p.vel?.y ?? 0).toFixed(2),
         });
       }
     }
-  }, [particle, selectedParticleIndex, isEditing]); // Update when particle properties or index changes
+  }, [selectedParticle, selectedMagnet, selectedParticleIndex, isEditing]); // Update when particle properties or index changes
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -135,54 +152,135 @@ export default function PropertyEditor() {
   // Validation and update handlers
   const handlePropertyUpdate = (
     property: string,
-    value: { x: number; y: number } | number
+    value: { x: number; y: number } | number | boolean
   ) => {
-    if (selectedParticleIndex === null) return;
-
-    switch (property) {
-      case "position":
-        if (typeof value === "object") {
-          universe.update_particle_position(
-            selectedParticleIndex,
-            value.x,
-            value.y
-          );
-        }
-        break;
-      case "velocity":
-        if (typeof value === "object") {
-          universe.update_particle_velocity(
-            selectedParticleIndex,
-            value.x,
-            value.y
-          );
-        }
-        break;
-      case "mass":
-        if (typeof value === "number") {
-          universe.update_particle_mass(selectedParticleIndex, value);
-        }
-        break;
-      case "charge":
-        if (typeof value === "number") {
-          universe.update_particle_charge(selectedParticleIndex, value);
-        }
-        break;
-      case "magnet_strength":
-        if (typeof value === "number") {
-          universe.update_particle_magnet_strength(selectedParticleIndex, value);
-        }
-        break;
-      case "radius":
-        if (typeof value === "number") {
-          universe.update_particle_radius(selectedParticleIndex, value);
-        }
-        break;
-      case "color":
-        if (typeof value === "number") {
-          universe.update_particle_color(selectedParticleIndex, value);
-        }
-        break;
+    // Route to particle/magnet based on current selection
+    if (selectedParticleIndex !== null) {
+      switch (property) {
+        case "position":
+          if (typeof value === "object") {
+            (universe as any).update_particle_position(
+              selectedParticleIndex,
+              value.x,
+              value.y
+            );
+          }
+          break;
+        case "velocity":
+          if (typeof value === "object") {
+            (universe as any).update_particle_velocity(
+              selectedParticleIndex,
+              value.x,
+              value.y
+            );
+          }
+          break;
+        case "mass":
+          if (typeof value === "number") {
+            (universe as any).update_particle_mass(
+              selectedParticleIndex,
+              value
+            );
+          }
+          break;
+        case "charge":
+          if (typeof value === "number") {
+            (universe as any).update_particle_charge(
+              selectedParticleIndex,
+              value
+            );
+          }
+          break;
+        case "radius":
+          if (typeof value === "number") {
+            (universe as any).update_particle_radius(
+              selectedParticleIndex,
+              value
+            );
+          }
+          break;
+        case "color":
+          if (typeof value === "number") {
+            (universe as any).update_particle_color(
+              selectedParticleIndex,
+              value
+            );
+          }
+          break;
+        case "fixed":
+          if (typeof value === "number" || typeof value === "boolean") {
+            (universe as any).update_particle_fixed(
+              selectedParticleIndex,
+              Boolean(value)
+            );
+          }
+          break;
+      }
+    } else if (selectedMagnetIndex !== null) {
+      switch (property) {
+        case "position":
+          if (typeof value === "object") {
+            (universe as any).update_magnet_position(
+              selectedMagnetIndex,
+              value.x,
+              value.y
+            );
+          }
+          break;
+        case "velocity":
+          if (typeof value === "object") {
+            (universe as any).update_magnet_velocity(
+              selectedMagnetIndex,
+              value.x,
+              value.y
+            );
+          }
+          break;
+        case "mass":
+          if (typeof value === "number") {
+            (universe as any).update_magnet_mass(selectedMagnetIndex, value);
+          }
+          break;
+        case "charge":
+          if (typeof value === "number") {
+            (universe as any).update_magnet_charge
+              ? (universe as any).update_magnet_charge(
+                  selectedMagnetIndex,
+                  value
+                )
+              : null;
+          }
+          break;
+        case "magnet_strength":
+          if (typeof value === "number") {
+            (universe as any).update_magnet_strength(
+              selectedMagnetIndex,
+              value
+            );
+          }
+          break;
+        case "radius":
+          if (typeof value === "number") {
+            (universe as any).update_magnet_size(selectedMagnetIndex, value);
+          }
+          break;
+        case "color":
+          if (typeof value === "number") {
+            (universe as any).update_magnet_color_north(
+              selectedMagnetIndex,
+              value
+            );
+          }
+          break;
+        case "fixed":
+          if (typeof value === "number" || typeof value === "boolean") {
+            (universe as any).update_magnet_fixed(
+              selectedMagnetIndex,
+              Boolean(value)
+            );
+          }
+          break;
+      }
     }
 
     // Trigger a re-render
@@ -299,7 +397,14 @@ export default function PropertyEditor() {
     }
   };
 
-  if (!isPropertyEditorOpen || !particle) return null;
+  if (!isPropertyEditorOpen) return null;
+
+  const editingMagnet = selectedMagnetIndex !== null;
+  const editingItem = editingMagnet ? selectedMagnet : selectedParticle;
+  if (!editingItem) return null;
+  const editingIndex = editingMagnet
+    ? selectedMagnetIndex
+    : selectedParticleIndex;
 
   return (
     <div
@@ -339,8 +444,10 @@ export default function PropertyEditor() {
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 hidden sm:block" />
           <GripVertical className="w-4 h-4 sm:w-5 sm:h-5 text-gray-400 -ml-4 hidden sm:block" />
           <h2 className="text-base sm:text-lg font-semibold text-gray-800 sm:ml-2">
-            Edit Particle{" "}
-            {selectedParticleIndex !== null ? selectedParticleIndex + 1 : 0}
+            {editingMagnet ? "Edit Magnet" : "Edit Particle"}{" "}
+            {editingIndex !== null && editingIndex !== undefined
+              ? editingIndex + 1
+              : 0}
             's Properties
           </h2>
         </div>
@@ -348,6 +455,7 @@ export default function PropertyEditor() {
           onClick={() => {
             setIsPropertyEditorOpen(false);
             setSelectedParticleIndex(null);
+            setSelectedMagnetIndex(null);
           }}
           className="p-1 hover:bg-gray-200 cursor-pointer rounded transition-all duration-200"
         >
@@ -390,55 +498,61 @@ export default function PropertyEditor() {
           {!massError && <span className="text-xs text-gray-500">kg</span>}
         </div>
 
-        {/* Charge */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-            Charge <span className="text-lg">q</span>:
-          </label>
-          <input
-            type="text"
-            value={chargeValue}
-            onChange={(e) => handleChargeChange(e.target.value)}
-            onBlur={() => setIsEditing(null)}
-            className={`w-full px-3 py-2.5 sm:py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${
-              chargeError
-                ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:ring-blue-500"
-            }`}
-            placeholder="Charge"
-          />
-          {chargeError && (
-            <span className="text-xs text-red-600">{chargeError}</span>
-          )}
-          {!chargeError && (
-            <span className="text-xs text-gray-500">C (Coulombs)</span>
-          )}
-        </div>
+        {/* Charge (particles only) */}
+        {!editingMagnet && (
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              Charge <span className="text-lg">q</span>:
+            </label>
+            <input
+              type="text"
+              value={chargeValue}
+              onChange={(e) => handleChargeChange(e.target.value)}
+              onBlur={() => setIsEditing(null)}
+              className={`w-full px-3 py-2.5 sm:py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${
+                chargeError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
+              placeholder="Charge"
+            />
+            {chargeError && (
+              <span className="text-xs text-red-600">{chargeError}</span>
+            )}
+            {!chargeError && (
+              <span className="text-xs text-gray-500">C (Coulombs)</span>
+            )}
+          </div>
+        )}
 
-        {/* Magnet Strength */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-            Magnet Strength <span className="text-lg">m</span>:
-          </label>
-          <input
-            type="text"
-            value={magnetStrengthValue}
-            onChange={(e) => handleMagnetStrengthChange(e.target.value)}
-            onBlur={() => setIsEditing(null)}
-            className={`w-full px-3 py-2.5 sm:py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${
-              magnetStrengthError
-                ? "border-red-500 focus:ring-red-500"
-                : "border-gray-300 focus:ring-blue-500"
-            }`}
-            placeholder="Magnet Strength"
-          />
-          {magnetStrengthError && (
-            <span className="text-xs text-red-600">{magnetStrengthError}</span>
-          )}
-          {!magnetStrengthError && (
-            <span className="text-xs text-gray-500">T (Tesla)</span>
-          )}
-        </div>
+        {/* Magnet Strength (magnets only) */}
+        {editingMagnet && (
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              Magnet Strength <span className="text-lg">m</span>:
+            </label>
+            <input
+              type="text"
+              value={magnetStrengthValue}
+              onChange={(e) => handleMagnetStrengthChange(e.target.value)}
+              onBlur={() => setIsEditing(null)}
+              className={`w-full px-3 py-2.5 sm:py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${
+                magnetStrengthError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-300 focus:ring-blue-500"
+              }`}
+              placeholder="Magnet Strength"
+            />
+            {magnetStrengthError && (
+              <span className="text-xs text-red-600">
+                {magnetStrengthError}
+              </span>
+            )}
+            {!magnetStrengthError && (
+              <span className="text-xs text-gray-500">T (Tesla)</span>
+            )}
+          </div>
+        )}
 
         {/* Radius */}
         <div className="space-y-1">
@@ -463,6 +577,34 @@ export default function PropertyEditor() {
           {!radiusError && (
             <span className="text-xs text-gray-500">pixels</span>
           )}
+        </div>
+
+        {/* Fixed (checkbox) */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            Fixed:
+          </label>
+          <div className="flex items-center gap-2">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={
+                  editingMagnet
+                    ? selectedMagnet
+                      ? selectedMagnet.fixed ?? false
+                      : false
+                    : selectedParticle
+                    ? selectedParticle.is_fixed()
+                    : false
+                }
+                onChange={(e) =>
+                  handlePropertyUpdate("fixed", e.target.checked)
+                }
+                className="w-4 h-4"
+              />
+              <span className="text-sm">Fixed</span>
+            </label>
+          </div>
         </div>
 
         {/* Position */}
