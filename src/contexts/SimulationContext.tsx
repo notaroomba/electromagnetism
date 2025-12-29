@@ -22,6 +22,8 @@ interface SimulationContextType {
   setShowEquipotentialLines: (show: boolean) => void;
   showFieldLines: boolean;
   setShowFieldLines: (show: boolean) => void;
+  viewQuadtree: boolean;
+  setViewQuadtree: (view: boolean) => void;
   isPaused: boolean;
   setIsPaused: (paused: boolean) => void;
   fps: number;
@@ -62,6 +64,7 @@ export function SimulationProvider({
   const [showVelocityVectors, setShowVelocityVectors] = useState(false);
   const [showEquipotentialLines, setShowEquipotentialLines] = useState(false);
   const [showFieldLines, setShowFieldLines] = useState(true);
+  const [viewQuadtree, setViewQuadtree] = useState(false);
   const [isPaused, setIsPaused] = useState(universe.get_is_paused());
   const [fps, setFps] = useState(0);
 
@@ -93,6 +96,8 @@ export function SimulationProvider({
         setShowEquipotentialLines,
         showFieldLines,
         setShowFieldLines,
+        viewQuadtree,
+        setViewQuadtree,
         isPaused,
         setIsPaused,
         fps,

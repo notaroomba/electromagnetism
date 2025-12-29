@@ -18,6 +18,7 @@ import {
   Shield,
   Nfc,
   CircleDashed,
+  Eye,
 } from "lucide-react";
 import { Implementation } from "physics-engine";
 import { useEffect, useState, useRef } from "react";
@@ -40,6 +41,8 @@ export default function SettingsBar() {
     setShowFieldLines,
     showVelocityVectors,
     setShowVelocityVectors,
+    viewQuadtree,
+    setViewQuadtree,
     isPaused,
     setIsPaused,
   } = useSimulation();
@@ -338,7 +341,7 @@ export default function SettingsBar() {
             </button>
           </div>
 
-          {/* Quadtree Controls */}
+          {/* Quadtree Controls
           <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 border-l border-gray-200 pl-3">
             <button
               onClick={() => {
@@ -350,6 +353,8 @@ export default function SettingsBar() {
                 // Track if user manually disabled quadtree when particle count >= 150
                 if (!newValue && universe.get_particle_count() >= 150) {
                   quadtreeManuallyDisabledRef.current = true;
+                  // If the quadtree was disabled, also turn off the visualizer
+                  setViewQuadtree(false);
                 } else if (newValue) {
                   // Reset flag when manually enabled
                   quadtreeManuallyDisabledRef.current = false;
@@ -362,6 +367,19 @@ export default function SettingsBar() {
               title={useQuadtree ? "Quadtree Enabled" : "Quadtree Disabled"}
             >
               <Grid3x3 className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              onClick={() => {
+                setViewQuadtree(!viewQuadtree);
+                setRender((prev) => prev + 1);
+              }}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+                viewQuadtree ? "bg-blue-100" : "hover:bg-gray-100"
+              }`}
+              title={viewQuadtree ? "Hide Quadtree" : "Show Quadtree"}
+              disabled={!useQuadtree}
+            >
+              <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <div className="flex items-center gap-1">
               <Settings className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
@@ -379,7 +397,7 @@ export default function SettingsBar() {
                 disabled={!useQuadtree}
               />
             </div>
-          </div>
+          </div> */}
 
           <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4">
             <div className="w-8 sm:w-12 text-center text-xs sm:text-base">

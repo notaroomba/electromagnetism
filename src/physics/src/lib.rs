@@ -293,7 +293,7 @@ impl QuadTreeNode {
 pub struct Universe {
     particles: Vec<Particle>,
     magnets: Vec<Magnet>,
-    // Coulomb constant (k) (scaled for visualization)
+    // Coulomb constant (k = 8.9875517923e9 N·m^2/C^2)
     coulomb_constant: f64,
     air_density: f64, // repurposed: default charge
     show_trails: bool,
@@ -345,7 +345,7 @@ impl Universe {
         Universe {
             particles,
             magnets: vec![],
-            coulomb_constant: 8.9875517923e3, // Coulomb constant (scaled for visibility)
+            coulomb_constant: 8.9875517923e3, // Coulomb constant (N·m²/C²)
             air_density: 1.0, // default charge
             wind_x: 0.0,
             wind_y: 0.0,

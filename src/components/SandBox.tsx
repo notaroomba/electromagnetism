@@ -27,6 +27,7 @@ export default function SandBox({ universe }: SandBoxProps) {
     showVelocityVectors,
     showEquipotentialLines,
     showFieldLines,
+    viewQuadtree,
     setFps,
   } = useSimulation();
 
@@ -236,11 +237,53 @@ export default function SandBox({ universe }: SandBoxProps) {
             const tipY = m.pos.y + velY;
             graphics.poly([
               { x: tipX, y: tipY },
-              { x: tipX - Math.cos(angle - arrowAngle) * arrowSize, y: tipY - Math.sin(angle - arrowAngle) * arrowSize },
-              { x: tipX - Math.cos(angle + arrowAngle) * arrowSize, y: tipY - Math.sin(angle + arrowAngle) * arrowSize },
+              {
+                x: tipX - Math.cos(angle - arrowAngle) * arrowSize,
+                y: tipY - Math.sin(angle - arrowAngle) * arrowSize,
+              },
+              {
+                x: tipX - Math.cos(angle + arrowAngle) * arrowSize,
+                y: tipY - Math.sin(angle + arrowAngle) * arrowSize,
+              },
             ]);
             graphics.fill({ color: 0x10b981, alpha: 1 });
           }
+        }
+      }
+
+      // Draw quadtree visualization when enabled (only if quadtree is actually being used)
+      if (
+        viewQuadtree &&
+        (universe as any).get_use_quadtree &&
+        universe.get_use_quadtree()
+      ) {
+        try {
+          const quadtreeData = (universe as any).get_quadtree();
+
+          const drawQuadNode = (node: any) => {
+            if (!node) return;
+            const halfWidth = node.dimensions.x / 2;
+            const halfHeight = node.dimensions.y / 2;
+            const left = node.center.x - halfWidth;
+            const top = node.center.y - halfHeight;
+
+            graphics.rect(left, top, node.dimensions.x, node.dimensions.y);
+            graphics.stroke({
+              width: 2,
+              color: 0x00ff00,
+              alpha: 0.6,
+            });
+
+            if (node.children) {
+              for (const child of node.children) {
+                drawQuadNode(child);
+              }
+            }
+          };
+
+          drawQuadNode(quadtreeData);
+        } catch (err) {
+          // ignore if quadtree serialization is not available
         }
       }
 
@@ -588,6 +631,7 @@ export default function SandBox({ universe }: SandBoxProps) {
                     tooClose = true;
                     break;
                   }
+                  // Use Coulomb potential: V = k * q / r
                   V += cq[k] / Math.sqrt(distSq);
                 }
                 grid[rowBase + gx] = tooClose ? null : V;
@@ -745,7 +789,9 @@ export default function SandBox({ universe }: SandBoxProps) {
                   graphics.stroke();
                   return;
                 }
-                const fieldMag = charge.charge / distSq;
+                // Electric field from point charge: E = k q / r^2
+                const fieldMag =
+                  (charge.charge * universe.get_coulomb_constant()) / distSq;
                 ex += fieldMag * (dx / dist);
                 ey += fieldMag * (dy / dist);
               }
@@ -778,7 +824,8 @@ export default function SandBox({ universe }: SandBoxProps) {
                     graphics.stroke();
                     return;
                   }
-                  const fieldMag = pole.s / distSq;
+                  const fieldMag =
+                    (pole.s * universe.get_coulomb_constant()) / distSq;
                   ex += fieldMag * (dx / dist);
                   ey += fieldMag * (dy / dist);
                 }
@@ -839,6 +886,7 @@ export default function SandBox({ universe }: SandBoxProps) {
       showVelocityVectors,
       showEquipotentialLines,
       showFieldLines,
+      viewQuadtree,
     ]
   );
 
