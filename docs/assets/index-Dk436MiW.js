@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/browserAll-DhFS5zqI.js","assets/webworkerAll-BqMykOQa.js","assets/colorToUniform-BXaCBwVl.js","assets/WebGPURenderer-D5nGGIFT.js","assets/SharedSystems-BNdaFFQp.js","assets/WebGLRenderer-KkgJTFY0.js"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/browserAll-CGFdKLlX.js","assets/webworkerAll-Fd1jULhf.js","assets/colorToUniform-BXaCBwVl.js","assets/WebGPURenderer-C2cCme1a.js","assets/SharedSystems-DqVwYJAe.js","assets/WebGLRenderer-C2jsc1O3.js"])))=>i.map(i=>d[i]);
 let tg, T2, Es, gs, Xs, qe, Ou, Qd, Wa, KS, Px, Ad, jC, xe, ZC, kd, Me, On, E_, QC, cd, w_, ln, f3, Qx, Ty, Kx, pC, Vl, ni, fC, XS, M2, Ae, dn, y3, q3, U3, r5, u5, p5, g5, y5, C2, Ic, eg, B1, Bd, v3, Jc, V2, c1, o1, Ud, UA, V1, Y2, N3, Nd, Qm, Cs, u1, R3, E0, b2, t2, Ia, p2, j_, l5, o5, f5, m5, FA, _g, We, BA, A0, ms, v5, ga, LS;
 let __tla = (async () => {
   var _a2, _b2;
@@ -10366,7 +10366,7 @@ Please change the parent <Route path="${O}"> to <Route path="${O === "/" ? "*" :
     },
     test: () => true,
     load: async () => {
-      await $m(() => import("./browserAll-DhFS5zqI.js").then(async (m) => {
+      await $m(() => import("./browserAll-CGFdKLlX.js").then(async (m) => {
         await m.__tla;
         return m;
       }), __vite__mapDeps([0,1,2]));
@@ -10380,7 +10380,7 @@ Please change the parent <Route path="${O}"> to <Route path="${O === "/" ? "*" :
     },
     test: () => typeof self < "u" && self.WorkerGlobalScope !== void 0,
     load: async () => {
-      await $m(() => import("./webworkerAll-BqMykOQa.js").then(async (m) => {
+      await $m(() => import("./webworkerAll-Fd1jULhf.js").then(async (m) => {
         await m.__tla;
         return m;
       }), __vite__mapDeps([1,2]));
@@ -15399,7 +15399,7 @@ ${e}`;
       const h = t[c];
       if (h === "webgpu" && await m3()) {
         const { WebGPURenderer: d } = await $m(async () => {
-          const { WebGPURenderer: m } = await import("./WebGPURenderer-D5nGGIFT.js").then(async (m2) => {
+          const { WebGPURenderer: m } = await import("./WebGPURenderer-C2cCme1a.js").then(async (m2) => {
             await m2.__tla;
             return m2;
           });
@@ -15414,7 +15414,7 @@ ${e}`;
         break;
       } else if (h === "webgl" && p3(e.failIfMajorPerformanceCaveat ?? T2.defaultOptions.failIfMajorPerformanceCaveat)) {
         const { WebGLRenderer: d } = await $m(async () => {
-          const { WebGLRenderer: m } = await import("./WebGLRenderer-KkgJTFY0.js").then(async (m2) => {
+          const { WebGLRenderer: m } = await import("./WebGLRenderer-C2jsc1O3.js").then(async (m2) => {
             await m2.__tla;
             return m2;
           });
@@ -25416,7 +25416,7 @@ No matching component was found for:
       h
     ]);
   }
-  const YR = "/assets/physics_engine_bg-cFQeg0GG.wasm", qR = async (e = {}, t) => {
+  const YR = "/assets/physics_engine_bg-B8zMpgI3.wasm", qR = async (e = {}, t) => {
     let n;
     if (t.startsWith("data:")) {
       const s = t.replace(/^data:.*?base64,/, "");
@@ -26158,8 +26158,8 @@ ${e.stack}` : s;
       __wbg___wbindgen_throw_dd24417ed36fc46e: IR,
       __wbg___wbindgen_debug_string_adfb662ae34724b6: JR,
       __wbindgen_init_externref_table: o6,
-      __wbindgen_cast_4625c577ab2ec9ee: l6,
       __wbindgen_cast_2241b6af4c4b2941: a6,
+      __wbindgen_cast_4625c577ab2ec9ee: l6,
       __wbindgen_cast_d6cd19b81560fd6e: r6
     }
   }, YR), u6 = st.memory, c6 = st.__wbg_get_magnet_acc, h6 = st.__wbg_get_magnet_angle, f6 = st.__wbg_get_magnet_color_north, d6 = st.__wbg_get_magnet_color_south, p6 = st.__wbg_get_magnet_fixed, m6 = st.__wbg_get_magnet_mass, g6 = st.__wbg_get_magnet_pos, y6 = st.__wbg_get_magnet_size, _6 = st.__wbg_get_magnet_strength, v6 = st.__wbg_get_magnet_thickness, x6 = st.__wbg_get_magnet_vel, b6 = st.__wbg_get_particle_color, S6 = st.__wbg_get_particle_fixed, w6 = st.__wbg_get_particle_radius, T6 = st.__wbg_get_trail_color, M6 = st.__wbg_get_vec2_x, E6 = st.__wbg_get_vec2_y, A6 = st.__wbg_magnet_free, C6 = st.__wbg_particle_free, R6 = st.__wbg_quadtreenode_free, z6 = st.__wbg_set_magnet_acc, D6 = st.__wbg_set_magnet_angle, N6 = st.__wbg_set_magnet_color_north, O6 = st.__wbg_set_magnet_color_south, B6 = st.__wbg_set_magnet_fixed, U6 = st.__wbg_set_magnet_mass, H6 = st.__wbg_set_magnet_pos, j6 = st.__wbg_set_magnet_size, V6 = st.__wbg_set_magnet_strength, G6 = st.__wbg_set_magnet_thickness, L6 = st.__wbg_set_magnet_vel, Y6 = st.__wbg_set_particle_color, q6 = st.__wbg_set_particle_fixed, X6 = st.__wbg_set_particle_radius, P6 = st.__wbg_set_trail_color, k6 = st.__wbg_set_vec2_x, Q6 = st.__wbg_set_vec2_y, K6 = st.__wbg_trail_free, Z6 = st.__wbg_universe_free, F6 = st.__wbg_vec2_free, W6 = st.magnet_get_data, J6 = st.magnet_is_fixed, I6 = st.magnet_new, $6 = st.magnet_new_simple, tz = st.magnet_set_fixed, ez = st.particle_add_trail_point, nz = st.particle_get_charge, iz = st.particle_get_data, sz = st.particle_get_trail, az = st.particle_is_fixed, lz = st.particle_new, rz = st.particle_new_simple, oz = st.particle_set_charge, uz = st.particle_set_fixed, cz = st.quadtreenode_get_data, hz = st.universe_add_magnet, fz = st.universe_add_magnet_simple, dz = st.universe_add_particle, pz = st.universe_add_particle_simple, mz = st.universe_get_collisions_enabled, gz = st.universe_get_coulomb_constant, yz = st.universe_get_data, _z = st.universe_get_default_charge, vz = st.universe_get_default_mass, xz = st.universe_get_implementation, bz = st.universe_get_is_paused, Sz = st.universe_get_magnet, wz = st.universe_get_magnet_count, Tz = st.universe_get_magnets, Mz = st.universe_get_mass_calculation, Ez = st.universe_get_min_interaction_distance, Az = st.universe_get_particle, Cz = st.universe_get_particle_count, Rz = st.universe_get_particles, zz = st.universe_get_quadtree, Dz = st.universe_get_quadtree_theta, Nz = st.universe_get_restitution, Oz = st.universe_get_show_trails, Bz = st.universe_get_spawn_range, Uz = st.universe_get_speed, Hz = st.universe_get_trails, jz = st.universe_get_use_mass_in_calculation, Vz = st.universe_get_use_quadtree, Gz = st.universe_new, Lz = st.universe_new_empty, Yz = st.universe_pop_magnet, qz = st.universe_pop_particle, Xz = st.universe_random_color, Pz = st.universe_remove_magnet, kz = st.universe_remove_particle, Qz = st.universe_reset, Kz = st.universe_set_collisions_enabled, Zz = st.universe_set_coulomb_constant, Fz = st.universe_set_default_charge, Wz = st.universe_set_default_mass, Jz = st.universe_set_implementation, Iz = st.universe_set_is_paused, $z = st.universe_set_mass_calculation, tD = st.universe_set_min_interaction_distance, eD = st.universe_set_quadtree_theta, nD = st.universe_set_restitution, iD = st.universe_set_show_trails, sD = st.universe_set_spawn_range, aD = st.universe_set_speed, lD = st.universe_set_use_mass_in_calculation, rD = st.universe_set_use_quadtree, oD = st.universe_time_step, uD = st.universe_toggle_use_quadtree, cD = st.universe_update_magnet_angle, hD = st.universe_update_magnet_color_north, fD = st.universe_update_magnet_color_south, dD = st.universe_update_magnet_fixed, pD = st.universe_update_magnet_mass, mD = st.universe_update_magnet_position, gD = st.universe_update_magnet_size, yD = st.universe_update_magnet_strength, _D = st.universe_update_magnet_thickness, vD = st.universe_update_magnet_velocity, xD = st.universe_update_particle_charge, bD = st.universe_update_particle_color, SD = st.universe_update_particle_fixed, wD = st.universe_update_particle_mass, TD = st.universe_update_particle_position, MD = st.universe_update_particle_radius, ED = st.universe_update_particle_velocity, AD = st.vec2_distance_from, CD = st.vec2_magnitude, RD = st.vec2_new, zD = st.vec2_normalize, DD = st.__wbg_set_particle_charge, ND = st.__wbg_set_particle_mass, OD = st.__wbg_get_particle_acc, BD = st.__wbg_get_particle_pos, UD = st.__wbg_get_particle_vel, HD = st.__wbg_get_trail_pos, jD = st.__wbg_get_particle_charge, VD = st.__wbg_get_particle_mass, GD = st.__wbg_set_particle_acc, LD = st.__wbg_set_particle_pos, YD = st.__wbg_set_particle_vel, qD = st.__wbg_set_trail_pos, XD = st.__wbindgen_malloc, PD = st.__wbindgen_realloc, kD = st.__wbindgen_exn_store, QD = st.__externref_table_alloc, KD = st.__wbindgen_externrefs, ZD = st.__externref_drop_slice, FD = st.__wbindgen_free, lw = st.__wbindgen_start, WD = Object.freeze(Object.defineProperty({
@@ -33140,7 +33140,7 @@ ${e.stack}` : s;
       s.set_coulomb_constant(8987.5517923), s.set_default_charge(1);
       const l = () => {
         if (s.get_particles().length < 10) for (let d = 0; d < 1; d++) {
-          const m = Math.random() * e, g = Math.random() * 200 - 100;
+          const m = Math.random() * e, g = Math.random() * 200;
           s.add_particle_simple(m, g, 0, 0, Math.random() * 40 - 20);
         }
       };

@@ -57,7 +57,7 @@ export default function Home() {
       if (count < 10) {
         for (let i = 0; i < 1; i++) {
           const x = Math.random() * width;
-          const y = Math.random() * 200 - 100;
+          const y = Math.random() * 200;
           universe.add_particle_simple(x, y, 0.0, 0.0, Math.random() * 40 - 20);
         }
       }
