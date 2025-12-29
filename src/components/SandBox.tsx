@@ -1,6 +1,6 @@
 import { extend, useTick } from "@pixi/react";
 import type { Particle, Trail, Universe } from "physics-engine";
-import { Container, Graphics, Text } from "pixi.js";
+import { Container, Graphics, Text, SCALE_MODES } from "pixi.js";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useSimulation } from "../contexts/SimulationContext";
 
@@ -388,10 +388,27 @@ export default function SandBox({ universe }: SandBoxProps) {
             stroke: "#000000",
             strokeThickness: 3,
             align: "center",
+            fontFamily: "Arial, Helvetica, sans-serif",
           } as any);
           label.anchor.set(0.5);
           // because container is y-flipped, flip text back
           label.scale.y = -1;
+          // Ensure smooth rendering (antialiasing) on high-DPI
+          try {
+            // resolution should be at least devicePixelRatio
+            (label as any).resolution = Math.max(
+              1,
+              Math.round(window.devicePixelRatio || 1)
+            );
+            // Ensure linear scaling for crispness
+            if ((label as any).texture && (label as any).texture.baseTexture) {
+              ((label as any).texture.baseTexture as any).scaleMode =
+                SCALE_MODES.LINEAR;
+            }
+            (label as any).roundPixels = false;
+          } catch (err) {
+            /* ignore if not supported in some environments */
+          }
           container.addChild(label);
           magnetTextsRef.current.push(label);
         }
@@ -420,6 +437,7 @@ export default function SandBox({ universe }: SandBoxProps) {
             nText.text = "N";
             nText.x = north.x;
             nText.y = north.y;
+            // rotation needs to account for the inverted y-scale on container
             nText.rotation = -(m.angle || 0);
           }
           if (sText) {

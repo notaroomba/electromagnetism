@@ -43,6 +43,7 @@ export default function PropertyEditor() {
   const [massValue, setMassValue] = useState("0.00");
   const [chargeValue, setChargeValue] = useState("0.00");
   const [magnetStrengthValue, setMagnetStrengthValue] = useState("0.00");
+  const [rotationValue, setRotationValue] = useState("0.0");
   const [radiusValue, setRadiusValue] = useState("0.0");
   const [positionValues, setPositionValues] = useState({
     x: "0.00",
@@ -84,8 +85,36 @@ export default function PropertyEditor() {
       }
     }
 
-    const p = selectedParticle;
-    if (p) {
+    if (selectedMagnet) {
+      // magnet is selected
+      if (!isEditing || !isEditing.includes("mass")) {
+        setMassValue(selectedMagnet.mass.toFixed(2));
+      }
+      if (!isEditing || !isEditing.includes("radius")) {
+        // show thickness as the 'radius' field when editing a magnet
+        setRadiusValue(
+          (selectedMagnet.thickness ?? selectedMagnet.size ?? 10).toFixed(1)
+        );
+      }
+      if (!isEditing || !isEditing.includes("position")) {
+        setPositionValues({
+          x: selectedMagnet.pos.x.toFixed(2),
+          y: selectedMagnet.pos.y.toFixed(2),
+        });
+      }
+      if (!isEditing || !isEditing.includes("velocity")) {
+        setVelocityValues({
+          x: (selectedMagnet.vel?.x ?? 0).toFixed(2),
+          y: (selectedMagnet.vel?.y ?? 0).toFixed(2),
+        });
+      }
+      if (!isEditing || !isEditing.includes("rotation")) {
+        setRotationValue(
+          ((selectedMagnet.angle ?? 0) * (180.0 / Math.PI)).toFixed(1)
+        );
+      }
+    } else if (selectedParticle) {
+      const p = selectedParticle;
       if (!isEditing || !isEditing.includes("mass")) {
         setMassValue(p.mass.toFixed(2));
       }
@@ -95,15 +124,9 @@ export default function PropertyEditor() {
       if (!isEditing || !isEditing.includes("radius")) {
         setRadiusValue((p.radius ?? 10).toFixed(1));
       }
-      // Update position fields from pos (unless user editing)
       if (!isEditing || !isEditing.includes("position")) {
-        setPositionValues({
-          x: p.pos.x.toFixed(2),
-          y: p.pos.y.toFixed(2),
-        });
+        setPositionValues({ x: p.pos.x.toFixed(2), y: p.pos.y.toFixed(2) });
       }
-
-      // Update velocity fields from vel (unless user editing)
       if (!isEditing || !isEditing.includes("velocity")) {
         setVelocityValues({
           x: (p.vel?.x ?? 0).toFixed(2),
@@ -259,9 +282,18 @@ export default function PropertyEditor() {
             );
           }
           break;
+        case "angle":
+          if (typeof value === "number") {
+            (universe as any).update_magnet_angle(selectedMagnetIndex, value);
+          }
+          break;
         case "radius":
           if (typeof value === "number") {
-            (universe as any).update_magnet_size(selectedMagnetIndex, value);
+            // For magnets, this maps to thickness
+            (universe as any).update_magnet_thickness(
+              selectedMagnetIndex,
+              value
+            );
           }
           break;
         case "color":
@@ -331,6 +363,22 @@ export default function PropertyEditor() {
       setMagnetStrengthError("Please enter a valid number");
     } else {
       handlePropertyUpdate("magnet_strength", numValue);
+    }
+  };
+
+  const handleRotationChange = (value: string) => {
+    setIsEditing("rotation");
+    setRotationValue(value);
+
+    if (value === "" || value === "-") return;
+
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+      // ignore invalid input for now
+    } else {
+      // convert degrees to radians
+      const rad = (numValue * Math.PI) / 180.0;
+      handlePropertyUpdate("angle", rad);
     }
   };
 
@@ -554,10 +602,29 @@ export default function PropertyEditor() {
           </div>
         )}
 
-        {/* Radius */}
+        {/* Rotation */}
+        {editingMagnet && (
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+              Rotation
+            </label>
+            <input
+              type="text"
+              value={rotationValue}
+              onChange={(e) => handleRotationChange(e.target.value)}
+              onBlur={() => setIsEditing(null)}
+              className={`w-full px-3 py-2.5 sm:py-2 text-base border rounded-md focus:outline-none focus:ring-2 border-gray-300 focus:ring-blue-500`}
+              placeholder="Degrees"
+            />
+            <span className="text-xs text-gray-500">degrees</span>
+          </div>
+        )}
+
+        {/* Radius / Thickness (particles vs magnets) */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
-            Radius <span className="text-lg">r</span>:
+            {editingMagnet ? "Thickness" : "Radius"}{" "}
+            <span className="text-lg">r</span>:
           </label>
           <input
             type="text"
@@ -569,7 +636,7 @@ export default function PropertyEditor() {
                 ? "border-red-500 focus:ring-red-500"
                 : "border-gray-300 focus:ring-blue-500"
             }`}
-            placeholder="Radius"
+            placeholder={editingMagnet ? "Thickness" : "Radius"}
           />
           {radiusError && (
             <span className="text-xs text-red-600">{radiusError}</span>
@@ -710,6 +777,27 @@ export default function PropertyEditor() {
             {!velocityErrors.y && (
               <span className="text-xs text-gray-500">m/s</span>
             )}
+          </div>
+        </div>
+
+        {/* Acceleration (read-only) */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            Acceleration:
+          </label>
+          <div className="flex gap-2">
+            <div className="w-1/2 text-sm text-gray-700">
+              X:{" "}
+              {editingMagnet
+                ? (selectedMagnet?.acc?.x ?? 0).toFixed(3)
+                : (selectedParticle?.acc?.x ?? 0).toFixed(3)}
+            </div>
+            <div className="w-1/2 text-sm text-gray-700">
+              Y:{" "}
+              {editingMagnet
+                ? (selectedMagnet?.acc?.y ?? 0).toFixed(3)
+                : (selectedParticle?.acc?.y ?? 0).toFixed(3)}
+            </div>
           </div>
         </div>
       </div>

@@ -13,6 +13,11 @@ export default function SideBar() {
   const [addCharge, setAddCharge] = useState(universe.get_default_charge());
   const [addRadius, setAddRadius] = useState(10);
   const [addMagnetStrength, setAddMagnetStrength] = useState(20);
+  const [addMagnetAngle, setAddMagnetAngle] = useState(0); // degrees
+  const [addMagnetSize, setAddMagnetSize] = useState(60);
+  const [addMagnetThickness, setAddMagnetThickness] = useState(20);
+  const [addMagnetColorNorth, setAddMagnetColorNorth] = useState(0xff0000);
+  const [addMagnetColorSouth, setAddMagnetColorSouth] = useState(0x0000ff);
 
   // Reuse refs for continuous add/remove
   const addIntervalRef = useRef<number | null>(null);
@@ -58,9 +63,41 @@ export default function SideBar() {
       const py =
         Math.random() * universe.get_spawn_range() -
         universe.get_spawn_range() / 2;
-      // Use the wasm API added for magnets
-      (universe as any).add_magnet_simple(px, py, addMagnetStrength);
+      // Use the wasm API added for magnets (full constructor)
+      (universe as any).add_magnet(
+        px,
+        py,
+        (addMagnetAngle * Math.PI) / 180.0,
+        addMagnetSize,
+        addMagnetThickness,
+        addMass,
+        addMagnetColorNorth,
+        addMagnetColorSouth,
+        addMagnetStrength,
+        addFixed
+      );
       // magnets are created fixed by default in the wasm helper
+    }
+    setRender((prev) => prev + 1);
+  };
+
+  const randomizeFields = () => {
+    if (addType === "particle") {
+      setAddMass(Math.random() * 4.9 + 0.1);
+      setAddCharge((Math.random() - 0.5) * 100);
+      setAddRadius(Math.random() * 18 + 2);
+      setAddFixed(Math.random() > 0.5);
+    } else {
+      setAddMagnetAngle(Math.random() * 360);
+      setAddMagnetStrength(
+        (Math.random() * 45 + 5) * (Math.random() > 0.5 ? 1 : -1)
+      );
+      setAddMagnetSize(Math.random() * 90 + 30);
+      setAddMagnetThickness(Math.random() * 35 + 5);
+      setAddMass(Math.random() * 4.9 + 0.1);
+      setAddMagnetColorNorth(Math.floor(Math.random() * 0xffffff));
+      setAddMagnetColorSouth(Math.floor(Math.random() * 0xffffff));
+      setAddFixed(Math.random() > 0.5);
     }
     setRender((prev) => prev + 1);
   };
@@ -156,6 +193,14 @@ export default function SideBar() {
               <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
+            <button
+              onClick={randomizeFields}
+              className="p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 hover:bg-gray-100"
+              title="Randomize pre-add fields"
+            >
+              Randomize
+            </button>
+
             <input
               type="number"
               value={addCount}
@@ -221,6 +266,55 @@ export default function SideBar() {
                   value={addMagnetStrength}
                   onChange={(e) =>
                     setAddMagnetStrength(parseFloat(e.target.value) || 0)
+                  }
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+                <label className="text-xs">Angle (deg)</label>
+                <input
+                  type="number"
+                  value={addMagnetAngle}
+                  onChange={(e) =>
+                    setAddMagnetAngle(parseFloat(e.target.value) || 0)
+                  }
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+                <label className="text-xs">Size</label>
+                <input
+                  type="number"
+                  value={addMagnetSize}
+                  onChange={(e) =>
+                    setAddMagnetSize(parseFloat(e.target.value) || 0)
+                  }
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+                <label className="text-xs">Thickness</label>
+                <input
+                  type="number"
+                  value={addMagnetThickness}
+                  onChange={(e) =>
+                    setAddMagnetThickness(parseFloat(e.target.value) || 0)
+                  }
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+                <label className="text-xs">North Color (hex)</label>
+                <input
+                  type="text"
+                  value={addMagnetColorNorth.toString(16)}
+                  onChange={(e) =>
+                    setAddMagnetColorNorth(
+                      parseInt(e.target.value, 16) || 0xff0000
+                    )
+                  }
+                  className="w-full px-2 py-1 text-sm border rounded"
+                />
+                <label className="text-xs">South Color (hex)</label>
+                <input
+                  type="text"
+                  value={addMagnetColorSouth.toString(16)}
+                  onChange={(e) =>
+                    setAddMagnetColorSouth(
+                      parseInt(e.target.value, 16) || 0x0000ff
+                    )
                   }
                   className="w-full px-2 py-1 text-sm border rounded"
                 />

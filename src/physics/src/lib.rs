@@ -1111,6 +1111,12 @@ impl Universe {
         }
     }
 
+    pub fn update_magnet_thickness(&mut self, index: usize, thickness: f32) {
+        if index < self.magnets.len() {
+            self.magnets[index].thickness = thickness;
+        }
+    }
+
     pub fn update_magnet_strength(&mut self, index: usize, strength: f64) {
         if index < self.magnets.len() {
             self.magnets[index].strength = strength;
@@ -1120,6 +1126,12 @@ impl Universe {
     pub fn update_magnet_fixed(&mut self, index: usize, fixed: bool) {
         if index < self.magnets.len() {
             self.magnets[index].fixed = fixed;
+        }
+    }
+
+    pub fn update_magnet_angle(&mut self, index: usize, angle: f64) {
+        if index < self.magnets.len() {
+            self.magnets[index].angle = angle;
         }
     }
 
