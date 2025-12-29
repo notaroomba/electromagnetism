@@ -1,8 +1,10 @@
-# Electromagnetism
-
-<p align="center">
-  <a href="https://electromagnetism.notaroomba.dev"><img src="public/logo.png" alt="Electromagnetism" width="180"></a>
-</p>
+<h1 align="center">
+    <br>
+    <a href="https://electromagnetism.notaroomba.dev"><img src="public/logo.png" alt="Electromagnetism" width="200"></a>
+    <br>
+    Electromagnetism
+    <br>
+</h1>
 
 <p align="center">
   Interactive 2D electrostatic & magnetic particle simulation with a Rust physics engine compiled to WebAssembly.
@@ -19,10 +21,9 @@
 
 An interactive sandbox for charged particles and magnets that combines a high-performance physics core (written in Rust and compiled to WebAssembly) with a responsive web UI (React + TypeScript) and PixiJS for high-performance 2D rendering.
 
-Demo: (if you have a hosted demo link, replace the URL below)
 
 <p align="center">
-  <a href="#">Live demo</a>
+  <a href="https://electromagnetism.notaroomba.dev">Live demo</a>
 </p>
 
 ## Key features

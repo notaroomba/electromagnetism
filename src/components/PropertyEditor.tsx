@@ -449,10 +449,16 @@ export default function PropertyEditor() {
     if (isPropertyEditorOpen) {
       if (typeof window !== "undefined" && window.innerWidth >= 640) {
         // Place editor near right edge with small margin (width = 400px + margin)
-        setPosition((prev) => ({ x: Math.max(10, window.innerWidth - 420), y: prev.y }));
+        setPosition((prev) => ({
+          x: Math.max(10, window.innerWidth - 420),
+          y: prev.y,
+        }));
       } else if (typeof window !== "undefined" && window.innerWidth < 640) {
         // Center on small screens (mobile)
-        setPosition({ x: Math.max(10, window.innerWidth / 2 - 200), y: Math.max(40, window.innerHeight / 2 - 250) });
+        setPosition({
+          x: Math.max(10, window.innerWidth / 2 - 200),
+          y: Math.max(40, window.innerHeight / 2 - 250),
+        });
       }
     }
   }, [isPropertyEditorOpen]);
