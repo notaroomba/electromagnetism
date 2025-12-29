@@ -6,6 +6,7 @@ import {
   RotateCcw,
   Calculator,
   ChartScatter,
+  Scale,
   Plus,
   Minus,
   Edit3,
@@ -13,9 +14,14 @@ import {
   Maximize2,
   BookOpen,
   Info,
+  Grid3x3,
   Navigation,
   Settings,
-  Weight,
+  Circle,
+  Rows,
+  Shield,
+  Nfc,
+  CircleDashed,
 } from "lucide-react";
 import { Implementation } from "physics-engine";
 import { useEffect, useState, useRef } from "react";
@@ -32,21 +38,25 @@ export default function SettingsBar() {
     setIsUniverseEditorOpen,
     showMoreInfo,
     setShowMoreInfo,
+    showEquipotentialLines,
+    setShowEquipotentialLines,
+    showFieldLines,
+    setShowFieldLines,
     showVelocityVectors,
     setShowVelocityVectors,
+    isPaused,
+    setIsPaused,
   } = useSimulation();
-  const [isPaused, setIsPaused] = useState(universe.get_is_paused());
   const [implementation, setImplementation] = useState<Implementation>(
     universe.get_implementation()
   );
   const [showTrails, setShowTrails] = useState(universe.get_show_trails());
   const [particleCount, setParticleCount] = useState(1);
-  const [useMass, setUseMass] = useState(
-    universe.get_use_mass_in_calculation()
+  const [useQuadtree, setUseQuadtree] = useState(universe.get_use_quadtree());
+  const [useMass, setUseMass] = useState(universe.get_mass_calculation());
+  const [quadtreeTheta, setQuadtreeTheta] = useState(
+    universe.get_quadtree_theta()
   );
-  // Spawn range: particles will be placed at random x in [-spawnRange, spawnRange]
-  const [spawnRange, setSpawnRange] = useState<number>(200);
-  // Collisions toggle (moved to SettingsBar)
   const [collisionsEnabled, setCollisionsEnabled] = useState(
     universe.get_collisions_enabled()
   );
@@ -54,6 +64,7 @@ export default function SettingsBar() {
   const addIntervalRef = useRef<number | null>(null);
   const removeIntervalRef = useRef<number | null>(null);
   const previousVelocityVectorsRef = useRef(showVelocityVectors);
+  const quadtreeManuallyDisabledRef = useRef(false);
 
   // Rust uses speed_multiplier * 10 substeps, so 1x speed = 1.0 in Rust
   const multipliers = [-4, -2, -1, -0.5, -0.25, 0, 0.25, 0.5, 1, 2, 4];
@@ -67,29 +78,65 @@ export default function SettingsBar() {
     console.log("Implementation set to", implementation);
   }, [implementation]);
 
+  // Track manual changes to velocity vectors while paused
   useEffect(() => {
-    universe.set_is_paused(isPaused);
-    console.log("Simulation is now", isPaused ? "paused" : "playing");
-
     if (isPaused) {
-      // Store the current velocity vector setting and show vectors when paused
-      previousVelocityVectorsRef.current = showVelocityVectors;
       setShowVelocityVectors(true);
+      // Update the ref when user manually changes velocity vectors while paused
+      previousVelocityVectorsRef.current = showVelocityVectors;
     } else {
       // Restore the previous velocity vector setting when unpaused
       setShowVelocityVectors(previousVelocityVectorsRef.current);
     }
-
-    setRender((prev) => prev + 1);
-  }, [isPaused]);
-
-  // Track manual changes to velocity vectors while paused
-  useEffect(() => {
-    if (isPaused) {
-      // Update the ref when user manually changes velocity vectors while paused
-      previousVelocityVectorsRef.current = showVelocityVectors;
-    }
   }, [showVelocityVectors, isPaused]);
+
+  useEffect(() => {
+    universe.set_use_quadtree(useQuadtree);
+    console.log("Quadtree", useQuadtree ? "enabled" : "disabled");
+  }, [useQuadtree]);
+
+  useEffect(() => {
+    universe.set_collisions_enabled(collisionsEnabled);
+    console.log("Collisions", collisionsEnabled ? "enabled" : "disabled");
+    setRender((prev) => prev + 1);
+  }, [collisionsEnabled]);
+
+  // Keep local collisions state in sync with the universe when render updates
+  useEffect(() => {
+    setCollisionsEnabled(universe.get_collisions_enabled());
+  }, [render]);
+
+  useEffect(() => {
+    universe.set_quadtree_theta(quadtreeTheta);
+    console.log("Quadtree theta set to", quadtreeTheta);
+  }, [quadtreeTheta]);
+
+  useEffect(() => {
+    universe.set_mass_calculation(useMass);
+    console.log("Mass calculation", useMass ? "enabled" : "disabled");
+    setRender((prev) => prev + 1);
+  }, [useMass]);
+
+  // Auto-enable quadtree when particle count reaches 150 (only if not manually disabled)
+  useEffect(() => {
+    const currentParticleCount = universe.get_particle_count();
+    if (
+      currentParticleCount >= 150 &&
+      !useQuadtree &&
+      !quadtreeManuallyDisabledRef.current
+    ) {
+      setUseQuadtree(true);
+      console.log(
+        "Quadtree auto-enabled at",
+        currentParticleCount,
+        "particles"
+      );
+    }
+    // Reset manual disable flag if particle count drops below 150
+    if (currentParticleCount < 150) {
+      quadtreeManuallyDisabledRef.current = false;
+    }
+  }, [render]);
 
   const rewind = () => {
     const currentIndex = multipliers.indexOf(multiplier);
@@ -111,12 +158,17 @@ export default function SettingsBar() {
 
   const reset = () => {
     const isPaused = universe.get_is_paused();
+    // Preserve user toggles across reset
+    const prevCollisions = collisionsEnabled;
+    const prevUseMass = useMass;
+
     universe.reset();
+    // Restore toggles user expects to persist
+    universe.set_collisions_enabled(prevCollisions);
+    universe.set_mass_calculation(prevUseMass);
     universe.set_is_paused(isPaused);
     setMultiplier(1);
     universe.set_speed(1.0);
-    // refresh UI state after reset
-    setCollisionsEnabled(universe.get_collisions_enabled());
     setImplementation(implementation);
     setRender((prev) => prev + 1);
   };
@@ -138,13 +190,13 @@ export default function SettingsBar() {
 
   const addParticles = (count: number) => {
     for (let i = 0; i < count; i++) {
-      // Add particles with random velocities
-      const px = Math.random() * (spawnRange * 2) - spawnRange;
+      // Add particles with random velocities and positions
       universe.add_particle_simple(
-        px, // x position randomized within spawnRange
-        0, // y position (ground)
-        Math.random() * 50 + 30, // vx: 30-80 m/s
-        Math.random() * 50 + 30 // vy: 30-80 m/s
+        Math.random() * 200 - 100,
+        Math.random() * 200 - 100,
+        Math.random() * 50 - 25,
+        Math.random() * 50 - 25,
+        Math.random() * 50 - 25
       );
     }
     setRender((prev) => prev + 1);
@@ -263,24 +315,6 @@ export default function SettingsBar() {
             </button>
             <button
               onClick={() => {
-                const newUseMass = !useMass;
-                setUseMass(newUseMass);
-                universe.set_use_mass_in_calculation(newUseMass);
-                setRender((prev) => prev + 1);
-              }}
-              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
-                useMass ? "bg-blue-100" : "bg-gray-100"
-              }`}
-              title={
-                useMass
-                  ? "Mass Affects Acceleration (Realistic)"
-                  : "Mass Ignored (All Objects Fall Same)"
-              }
-            >
-              <Weight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <button
-              onClick={() => {
                 setShowVelocityVectors(!showVelocityVectors);
                 setRender((prev) => prev + 1);
               }}
@@ -297,6 +331,63 @@ export default function SettingsBar() {
             </button>
             <button
               onClick={() => {
+                setUseMass(!useMass);
+                setRender((prev) => prev + 1);
+              }}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+                useMass ? "bg-blue-100" : "hover:bg-gray-100"
+              }`}
+              title={
+                useMass
+                  ? "Use Mass in Calculations"
+                  : "Ignore Mass in Calculations"
+              }
+            >
+              <Scale className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              onClick={() => {
+                setShowEquipotentialLines(!showEquipotentialLines);
+                setRender((prev) => prev + 1);
+              }}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+                showEquipotentialLines ? "bg-blue-100" : "hover:bg-gray-100"
+              }`}
+              title={
+                showEquipotentialLines
+                  ? "Hide Equipotential Lines"
+                  : "Show Equipotential Lines"
+              }
+            >
+              <CircleDashed className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              onClick={() => {
+                setShowFieldLines(!showFieldLines);
+                setRender((prev) => prev + 1);
+              }}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+                showFieldLines ? "bg-blue-100" : "hover:bg-gray-100"
+              }`}
+              title={showFieldLines ? "Hide Field Lines" : "Show Field Lines"}
+            >
+              <Nfc className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              onClick={() => {
+                setCollisionsEnabled(!collisionsEnabled);
+              }}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+                collisionsEnabled ? "bg-blue-100" : "hover:bg-gray-100"
+              }`}
+              title={
+                collisionsEnabled ? "Disable Collisions" : "Enable Collisions"
+              }
+            >
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <button
+              onClick={() => {
                 setShowMoreInfo(!showMoreInfo);
                 setRender((prev) => prev + 1);
               }}
@@ -307,6 +398,49 @@ export default function SettingsBar() {
             >
               <Info className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
+          </div>
+
+          {/* Quadtree Controls */}
+          <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 border-l border-gray-200 pl-3">
+            <button
+              onClick={() => {
+                const newValue = !useQuadtree;
+                setUseQuadtree(newValue);
+                console.log(
+                  `Quadtree manually ${newValue ? "enabled" : "disabled"}`
+                );
+                // Track if user manually disabled quadtree when particle count >= 150
+                if (!newValue && universe.get_particle_count() >= 150) {
+                  quadtreeManuallyDisabledRef.current = true;
+                } else if (newValue) {
+                  // Reset flag when manually enabled
+                  quadtreeManuallyDisabledRef.current = false;
+                }
+                setRender((prev) => prev + 1);
+              }}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
+                useQuadtree ? "bg-blue-100" : "hover:bg-gray-100"
+              }`}
+              title={useQuadtree ? "Quadtree Enabled" : "Quadtree Disabled"}
+            >
+              <Grid3x3 className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <div className="flex items-center gap-1">
+              <Settings className="w-3 h-3 sm:w-4 sm:h-4 text-gray-500" />
+              <input
+                type="number"
+                value={quadtreeTheta}
+                onChange={(e) =>
+                  setQuadtreeTheta(parseFloat(e.target.value) || 0.5)
+                }
+                step="0.1"
+                min="0"
+                max="2"
+                className="w-12 sm:w-16 px-1 py-0.5 text-xs sm:text-sm border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+                title="Quadtree Theta (Barnes-Hut threshold)"
+                disabled={!useQuadtree}
+              />
+            </div>
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4">
@@ -348,68 +482,6 @@ export default function SettingsBar() {
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4">
-            <button
-              onMouseDown={handleAddMouseDown}
-              onMouseUp={handleAddMouseUp}
-              onMouseLeave={handleAddMouseUp}
-              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100`}
-              title={`Add ${particleCount} Particle(s) (Hold to add continuously)`}
-            >
-              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-            <input
-              type="number"
-              value={particleCount}
-              onChange={(e) =>
-                setParticleCount(Math.max(1, parseInt(e.target.value) || 1))
-              }
-              min="1"
-              max="100"
-              className="w-10 sm:w-14 px-1 py-0.5 text-xs sm:text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-              title="Number of particles to add/remove"
-            />
-            {/* Spawn range control */}
-            <div className="flex items-center gap-2 ml-2">
-              <label className="text-xs hidden sm:block">Spawn ±</label>
-              <input
-                type="number"
-                value={spawnRange}
-                onChange={(e) =>
-                  setSpawnRange(Math.max(0, parseInt(e.target.value) || 0))
-                }
-                min={0}
-                className="w-16 px-1 py-0.5 text-xs sm:text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
-                title="Spawn range in simulation units (particles spawn with x in [-range, +range])"
-              />
-            </div>
-            <button
-              onMouseDown={handleRemoveMouseDown}
-              onMouseUp={handleRemoveMouseUp}
-              onMouseLeave={handleRemoveMouseUp}
-              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100`}
-              title={`Remove ${particleCount} Particle(s) (Hold to remove continuously)`}
-            >
-              <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
-
-          <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4">
-            <button
-              onClick={() => {
-                const newVal = !collisionsEnabled;
-                setCollisionsEnabled(newVal);
-                universe.set_collisions_enabled(newVal);
-                setRender((prev) => prev + 1);
-              }}
-              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 ${
-                collisionsEnabled ? "bg-blue-100" : "hover:bg-gray-100"
-              }`}
-              title={
-                collisionsEnabled ? "Collisions Enabled" : "Collisions Disabled"
-              }
-            >
-              <ChartScatter className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
             <button
               onClick={() => {
                 const willOpen = !isPropertyEditorOpen;
@@ -455,7 +527,39 @@ export default function SettingsBar() {
             >
               <Maximize2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
-            {/* Auto-fade removed */}
+          </div>
+
+          {/* Add/Remove Particles Controls */}
+          <div className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4">
+            <button
+              onMouseDown={handleAddMouseDown}
+              onMouseUp={handleAddMouseUp}
+              onMouseLeave={handleAddMouseUp}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100`}
+              title={`Add ${particleCount} Particle(s) (Hold to add continuously)`}
+            >
+              <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <input
+              type="number"
+              value={particleCount}
+              onChange={(e) =>
+                setParticleCount(Math.max(1, parseInt(e.target.value) || 1))
+              }
+              min="1"
+              max="100"
+              className="w-10 sm:w-14 px-1 py-0.5 text-xs sm:text-sm text-center border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blue-500"
+              title="Number of particles to add/remove"
+            />
+            <button
+              onMouseDown={handleRemoveMouseDown}
+              onMouseUp={handleRemoveMouseUp}
+              onMouseLeave={handleRemoveMouseUp}
+              className={`p-1.5 sm:p-2 rounded cursor-pointer transition-all duration-200 active:bg-blue-200 hover:bg-gray-100`}
+              title={`Remove ${particleCount} Particle(s) (Hold to remove continuously)`}
+            >
+              <Minus className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
           </div>
         </div>
       </div>

@@ -43,18 +43,15 @@ export default function UniversePropertyEditor() {
     universe.get_default_charge().toFixed(2)
   );
   const [speed, setSpeed] = useState(universe.get_speed().toFixed(2));
-  const [showTrails, setShowTrailsState] = useState(universe.get_show_trails());
   const [restitution, setRestitution] = useState(
     universe.get_restitution().toFixed(2)
   );
   const [minDistance, setMinDistance] = useState(
     universe.get_min_interaction_distance().toFixed(2)
   );
-  const [useQuadtree, setUseQuadtree] = useState(universe.get_use_quadtree());
-  const [quadtreeTheta, setQuadtreeTheta] = useState(
-    universe.get_quadtree_theta().toFixed(2)
+  const [spawnRange, setSpawnRange] = useState(
+    universe.get_spawn_range().toFixed(2)
   );
-
   // Update local values when universe changes
   useEffect(() => {
     if (!isEditing) {
@@ -62,11 +59,9 @@ export default function UniversePropertyEditor() {
       setDefaultMass(universe.get_default_mass().toFixed(2));
       setDefaultCharge(universe.get_default_charge().toFixed(2));
       setSpeed(universe.get_speed().toFixed(2));
-      setShowTrailsState(universe.get_show_trails());
       setRestitution(universe.get_restitution().toFixed(2));
       setMinDistance(universe.get_min_interaction_distance().toFixed(2));
-      setUseQuadtree(universe.get_use_quadtree());
-      setQuadtreeTheta(universe.get_quadtree_theta().toFixed(2));
+      setSpawnRange(universe.get_spawn_range().toFixed(2));
     }
   }, [universe, render, isEditing]);
 
@@ -88,10 +83,6 @@ export default function UniversePropertyEditor() {
         universe.set_speed(value as number);
         setSpeed((value as number).toFixed(2));
         break;
-      case "showTrails":
-        universe.set_show_trails(value as boolean);
-        setShowTrailsState(value as boolean);
-        break;
       case "restitution":
         universe.set_restitution(value as number);
         setRestitution((value as number).toFixed(2));
@@ -100,13 +91,9 @@ export default function UniversePropertyEditor() {
         universe.set_min_interaction_distance(value as number);
         setMinDistance((value as number).toFixed(2));
         break;
-      case "useQuadtree":
-        universe.set_use_quadtree(value as boolean);
-        setUseQuadtree(value as boolean);
-        break;
-      case "quadtreeTheta":
-        universe.set_quadtree_theta(value as number);
-        setQuadtreeTheta((value as number).toFixed(2));
+      case "spawnRange":
+        universe.set_spawn_range(value as number);
+        setSpawnRange((value as number).toFixed(2));
         break;
     }
     setRender((prev) => prev + 1);
@@ -207,27 +194,6 @@ export default function UniversePropertyEditor() {
           <span className="text-xs text-gray-500">Coulombs</span>
         </div>
 
-        {/* Default Mass */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium text-gray-700">
-            Default Mass (kg):
-          </label>
-          <input
-            type="text"
-            value={defaultMass}
-            onChange={(e) => {
-              setIsEditing("defaultMass");
-              setDefaultMass(e.target.value);
-              const val = parseFloat(e.target.value);
-              if (!isNaN(val) && val > 0) {
-                handlePropertyUpdate("defaultMass", val);
-              }
-            }}
-            onBlur={() => setIsEditing(null)}
-            className="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-
         {/* Speed */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">
@@ -248,6 +214,7 @@ export default function UniversePropertyEditor() {
             className="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">
             Restitution (0-1):
@@ -292,40 +259,32 @@ export default function UniversePropertyEditor() {
           </span>
         </div>
 
-        {/* Quadtree */}
-        <div className="flex items-center justify-between">
-          <label className="text-sm font-medium text-gray-700">
-            Use Barnes-Hut (Quadtree)
-          </label>
-          <button
-            onClick={() => handlePropertyUpdate("useQuadtree", !useQuadtree)}
-            className={`px-3 py-1 rounded ${
-              useQuadtree ? "bg-blue-100" : "hover:bg-gray-100"
-            }`}
-          >
-            {useQuadtree ? "On" : "Off"}
-          </button>
-        </div>
-
+        {/* Spawn Range */}
         <div className="space-y-1">
           <label className="text-sm font-medium text-gray-700">
-            Quadtree θ:
+            Spawn Range (±x units):
           </label>
           <input
             type="text"
-            value={quadtreeTheta}
+            value={spawnRange}
             onChange={(e) => {
-              setIsEditing("quadtreeTheta");
-              setQuadtreeTheta(e.target.value);
+              setIsEditing("spawnRange");
+              setSpawnRange(e.target.value);
               const val = parseFloat(e.target.value);
               if (!isNaN(val)) {
-                handlePropertyUpdate("quadtreeTheta", val);
+                handlePropertyUpdate("spawnRange", val);
               }
             }}
             onBlur={() => setIsEditing(null)}
             className="w-full px-3 py-2 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
+          <span className="text-xs text-gray-500">
+            Particles added via the UI will be placed randomly within ±this
+            range
+          </span>
         </div>
+
+        {/* Quadtree settings moved to the Settings bar for quick access */}
       </div>
     </div>
   );

@@ -64,7 +64,7 @@ export default function Error() {
           const y = 0;
           const vx = (Math.random() - 0.5) * 100;
           const vy = Math.random() * 50 + 50;
-          universe.add_particle_simple(x, y, vx, vy);
+          universe.add_particle_simple(x, y, vx, vy, Math.random() * 10 - 5);
         }
       }
     };

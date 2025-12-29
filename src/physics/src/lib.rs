@@ -309,7 +309,10 @@ pub struct Universe {
     implementation: Implementation,
     speed: f64,
     default_mass: f64,
+    // Whether to use individual particle mass in acceleration calculations
+    mass_calculation: bool,
     default_charge: f64, // renamed from default_drag_coefficient
+    spawn_range: f64, // configurable spawn range for new particles (±units)
     // Minimum interaction distance to avoid Coulomb singularities
     min_interaction_distance: f64,
     // quadtree options
@@ -336,10 +339,11 @@ impl Universe {
     fn new_with_defaults(with_defaults: bool) -> Universe {
         let particles = if with_defaults {
             // sample charge setup: positive/negative pair and a third neutral-ish
-            let p1 = Particle::new(-200.0, 0.0, 8.0, 1.0, 0xff0000, 0.0, 0.0, 10.0); // positive
-            let p2 = Particle::new(200.0, 0.0, 8.0, 1.0, 0x0000ff, 0.0, 0.0, -10.0); // negative
-            // let p3 = Particle::new(0.0, 120.0, 10.0, 1.0, 0x00ff00, 0.0, 0.0, 5.0); // positive
-            vec![p1, p2]
+            let p1 = Particle::new(-200.0, 0.0, 10.0, 1.0, 0xff0000, 0.0, 0.0, 20.0); // positive
+            let p2 = Particle::new(200.0, 0.0, 10.0, 1.0, 0xff0000, 0.0, 0.0, 20.0); // positive
+            let p3 = Particle::new(0.0, 200.0, 10.0, 0.8, 0x0000ff, 0.0, 0.0, -20.0); // negative
+            let p4 = Particle::new(0.0, -200.0, 10.0, 0.8, 0x0000ff, 0.0, 0.0, -20.0); // negative
+            vec![p1, p2, p3, p4]
         } else {
             vec![]
         };
@@ -355,7 +359,9 @@ impl Universe {
             show_trails: true,
             is_paused: false,
             default_mass: 1.0,
+            mass_calculation: true,
             default_charge: 1.0, // default charge when adding simple
+            spawn_range: 200.0, // default spawn spread in simulation units
             min_interaction_distance: 10.0, // default minimum distance (simulation units)
             use_quadtree: false,
             quadtree_theta: 0.5,
@@ -615,7 +621,7 @@ impl Universe {
 
         for i in 0..n {
             let qi = self.particles[i].charge; // charge
-            let mi = self.particles[i].mass;
+            let mi = if self.mass_calculation { self.particles[i].mass } else { self.default_mass };
             for j in 0..n {
                 if i == j {
                     continue;
@@ -654,7 +660,7 @@ impl Universe {
 
         for i in 0..n {
             let qi = self.particles[i].charge;
-            let mi = self.particles[i].mass;
+            let mi = if self.mass_calculation { self.particles[i].mass } else { self.default_mass };
             for j in 0..n {
                 if i == j {
                     continue;
@@ -773,10 +779,15 @@ impl Universe {
 
         for i in 0..n {
             let pos2d = Vec2::new(self.particles[i].pos.x, self.particles[i].pos.y);
+            let particle_mass = if self.mass_calculation {
+                self.particles[i].mass
+            } else {
+                self.default_mass
+            };
             let acc2d = self.acceleration_from_quad(
                 pos2d,
                 self.particles[i].charge,
-                self.particles[i].mass,
+                particle_mass,
                 &self.quadtree
             );
             accelerations[i].x = acc2d.x;
@@ -871,6 +882,18 @@ impl Universe {
         if particle.charge == 0.0 {
             particle.charge = self.default_charge;
         }
+
+        // If caller didn't specify a color (0), pick color based on charge sign
+        if color == 0 {
+            particle.color = if particle.charge < 0.0 {
+                0x0000ff
+            } else if particle.charge > 0.0 {
+                0xff0000
+            } else {
+                Self::random_color()
+            };
+        }
+
         self.particles.push(particle);
     }
 
@@ -879,20 +902,18 @@ impl Universe {
         colors[rand::rng().random_range(0..colors.len())]
     }
 
-    pub fn add_particle_simple(&mut self, px: f64, py: f64, vx: f64, vy: f64) {
-        let default_color = Self::random_color();
-        let default_radius = 5.0;
+    pub fn add_particle_simple(&mut self, px: f64, py: f64, vx: f64, vy: f64, c: f64) {
+        // Color by charge sign: red = positive, blue = negative, random for neutral
+        let default_color = if c < 0.0 {
+            0x0000ff
+        } else if c > 0.0 {
+            0xff0000
+        } else {
+            Self::random_color()
+        };
+        let default_radius = 10.0;
 
-        let p = Particle::new(
-            px,
-            py,
-            default_radius,
-            self.default_mass,
-            default_color,
-            vx,
-            vy,
-            self.default_charge
-        );
+        let p = Particle::new(px, py, default_radius, self.default_mass, default_color, vx, vy, c);
         self.particles.push(p);
     }
 
@@ -952,6 +973,14 @@ impl Universe {
     pub fn update_particle_charge(&mut self, index: usize, charge: f64) {
         if index < self.particles.len() {
             self.particles[index].charge = charge;
+            // Update color based on sign of new charge
+            self.particles[index].color = if charge < 0.0 {
+                0x0000ff
+            } else if charge > 0.0 {
+                0xff0000
+            } else {
+                Self::random_color()
+            };
         }
     }
 
@@ -1019,6 +1048,14 @@ impl Universe {
         self.min_interaction_distance
     }
 
+    pub fn set_spawn_range(&mut self, r: f64) {
+        self.spawn_range = r;
+    }
+
+    pub fn get_spawn_range(&self) -> f64 {
+        self.spawn_range
+    }
+
     pub fn set_default_charge(&mut self, charge: f64) {
         self.default_charge = charge;
     }
@@ -1049,6 +1086,15 @@ impl Universe {
 
     pub fn get_default_mass(&self) -> f64 {
         return self.default_mass;
+    }
+
+    // Toggle whether individual particle mass is used in acceleration calculations
+    pub fn set_mass_calculation(&mut self, mass_calculation: bool) {
+        self.mass_calculation = mass_calculation;
+    }
+
+    pub fn get_mass_calculation(&self) -> bool {
+        return self.mass_calculation;
     }
 
     pub fn set_use_mass_in_calculation(&mut self, _use_mass: bool) {

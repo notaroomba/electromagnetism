@@ -34,6 +34,7 @@ export default function PropertyEditor() {
   // Local state for input values and errors
   const [massValue, setMassValue] = useState("0.00");
   const [chargeValue, setChargeValue] = useState("0.00");
+  const [magnetStrengthValue, setMagnetStrengthValue] = useState("0.00");
   const [radiusValue, setRadiusValue] = useState("0.0");
   const [positionValues, setPositionValues] = useState({
     x: "0.00",
@@ -47,6 +48,7 @@ export default function PropertyEditor() {
   // Error states
   const [massError, setMassError] = useState("");
   const [chargeError, setChargeError] = useState("");
+  const [magnetStrengthError, setMagnetStrengthError] = useState("");
   const [radiusError, setRadiusError] = useState("");
   const [positionErrors, setPositionErrors] = useState({
     x: "",
@@ -70,8 +72,26 @@ export default function PropertyEditor() {
       if (!isEditing || !isEditing.includes("charge")) {
         setChargeValue(particle.charge.toFixed(2));
       }
+      if (!isEditing || !isEditing.includes("magnetStrength")) {
+        setMagnetStrengthValue(particle.magnet_strength.toFixed(2));
+      }
       if (!isEditing || !isEditing.includes("radius")) {
         setRadiusValue(particle.radius.toFixed(1));
+      }
+      // Update position fields from particle.pos (unless user editing)
+      if (!isEditing || !isEditing.includes("position")) {
+        setPositionValues({
+          x: particle.pos.x.toFixed(2),
+          y: particle.pos.y.toFixed(2),
+        });
+      }
+
+      // Update velocity fields from particle.vel (unless user editing)
+      if (!isEditing || !isEditing.includes("velocity")) {
+        setVelocityValues({
+          x: particle.vel.x.toFixed(2),
+          y: particle.vel.y.toFixed(2),
+        });
       }
     }
   }, [particle, selectedParticleIndex, isEditing]); // Update when particle properties or index changes
@@ -148,6 +168,11 @@ export default function PropertyEditor() {
           universe.update_particle_charge(selectedParticleIndex, value);
         }
         break;
+      case "magnet_strength":
+        if (typeof value === "number") {
+          universe.update_particle_magnet_strength(selectedParticleIndex, value);
+        }
+        break;
       case "radius":
         if (typeof value === "number") {
           universe.update_particle_radius(selectedParticleIndex, value);
@@ -193,6 +218,21 @@ export default function PropertyEditor() {
       setChargeError("Please enter a valid number");
     } else {
       handlePropertyUpdate("charge", numValue);
+    }
+  };
+
+  const handleMagnetStrengthChange = (value: string) => {
+    setIsEditing("magnetStrength");
+    setMagnetStrengthValue(value);
+    setMagnetStrengthError("");
+
+    if (value === "" || value === "-") return;
+
+    const numValue = parseFloat(value);
+    if (isNaN(numValue)) {
+      setMagnetStrengthError("Please enter a valid number");
+    } else {
+      handlePropertyUpdate("magnet_strength", numValue);
     }
   };
 
@@ -372,6 +412,31 @@ export default function PropertyEditor() {
           )}
           {!chargeError && (
             <span className="text-xs text-gray-500">C (Coulombs)</span>
+          )}
+        </div>
+
+        {/* Magnet Strength */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+            Magnet Strength <span className="text-lg">m</span>:
+          </label>
+          <input
+            type="text"
+            value={magnetStrengthValue}
+            onChange={(e) => handleMagnetStrengthChange(e.target.value)}
+            onBlur={() => setIsEditing(null)}
+            className={`w-full px-3 py-2.5 sm:py-2 text-base border rounded-md focus:outline-none focus:ring-2 ${
+              magnetStrengthError
+                ? "border-red-500 focus:ring-red-500"
+                : "border-gray-300 focus:ring-blue-500"
+            }`}
+            placeholder="Magnet Strength"
+          />
+          {magnetStrengthError && (
+            <span className="text-xs text-red-600">{magnetStrengthError}</span>
+          )}
+          {!magnetStrengthError && (
+            <span className="text-xs text-gray-500">T (Tesla)</span>
           )}
         </div>
 
